@@ -1,0 +1,4 @@
+
+  $ ruby earshot.rb
+
+(You need Tk, and Ruby 1.9.2 is recommended. 1.9.1 doesn't print exceptions in the Tk thread.)
