@@ -18,7 +18,7 @@ class Transceiver
       @airspace.send_broadcast(broadcast)
       @outgoing_broadcast = broadcast
     else
-      puts "#{self} cannot broadcast more than one message at once!"
+      LOG.error "#{self} cannot broadcast more than one message at once!"
     end
   end
   
@@ -35,12 +35,12 @@ class Transceiver
   end
   
   def transmission_finished(broadcast)
-    puts "ERROR: finished transmitting something #{self} wasn't transmitting: #{broadcast}" if @outgoing_broadcast != broadcast
+    LOG.error "ERROR: finished transmitting something #{self} wasn't transmitting: #{broadcast}" if @outgoing_broadcast != broadcast
     @outgoing_broadcast = nil
   end
   
   def received_broadcast(broadcast)
-    puts "#{self} received #{broadcast}"
+    LOG.info "#{self} received #{broadcast}"
     @stored_messages << broadcast.message unless @stored_messages.include? broadcast.message
   end
   

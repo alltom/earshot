@@ -13,7 +13,7 @@ class Airspace
   def send_broadcast(broadcast)
     @broadcasts << broadcast
     broadcast.receivers = @receivers.select { |r| r.loc.dist(broadcast.loc) <= broadcast.range } - [broadcast.sender]
-    puts "#{broadcast} from #{broadcast.sender} start (#{broadcast.receivers.length} receivers)"
+    LOG.info "#{broadcast} from #{broadcast.sender} start (#{broadcast.receivers.length} receivers)"
   end
   
   def start
@@ -32,16 +32,15 @@ class Airspace
         @broadcasts.each do |b|
           b.failed_receivers << r
           b.receivers -= [r]
-          puts "Broadcast #{b} to #{r} failed due to collision"
+          LOG.info "Broadcast #{b} to #{r} failed due to collision"
         end
       end
       
       @broadcasts.each do |broadcast|
-        # puts "#{broadcast} transmitting..."
         broadcast.bits_left -= 1
         broadcast.sender.progress_oval.width = broadcast.progress * TRANSMISSION_RADIUS * 2
         if broadcast.bits_left == 0
-          puts "#{broadcast} from #{broadcast.sender} done"
+          LOG.info "#{broadcast} from #{broadcast.sender} done"
           broadcast.sender.progress_oval.width = 2
           broadcast.receivers.each do |receiver|
             receiver.received_broadcast(broadcast)
