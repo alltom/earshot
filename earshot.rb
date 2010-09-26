@@ -1,3 +1,4 @@
+GUI = false
 
 require "./loc"
 require "./airspace"
@@ -5,9 +6,11 @@ require "./transceiver"
 require "./broadcast"
 
 require "rubygems"
-require "tk"
 require "ruck"
 require "logger"
+if GUI
+  require "tk"
+end
 
 include Ruck
 
@@ -25,6 +28,7 @@ TRANSMISSION_RADIUS = 100
 TRANSCEIVER_COUNT = 40
 CHATTY_TRANSCEIVER_COUNT = 1
 WIDTH, HEIGHT = 900, 600
+SIMULATION_SECONDS = 20 # how long the simulation lasts (in virtual seconds)
 
 MESSAGES = ["HELLO", "OK", "HELP!", "HOW ARE YOU", "GOOD MORNING", "WHAT IS YOUR QUEST?", "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
 
@@ -42,27 +46,30 @@ class Simulation
   end
   
   def initialize_interface
-    # TkButton.new {
-    #   text "Hello, world!"
-    #   command { puts "Hello, world!" }
-    #   pack
-    # }
+    if GUI
+      # TkButton.new {
+      #   text "Hello, world!"
+      #   command { puts "Hello, world!" }
+      #   pack
+      # }
 
-    # TkMessage.new {
-    #   text "* Ruby\n* Perl\n* Python"
-    #   pack
-    # }
+      # TkMessage.new {
+      #   text "* Ruby\n* Perl\n* Python"
+      #   pack
+      # }
 
-    @canvas = TkCanvas.new {
-      bg "red"
-      height HEIGHT
-      width WIDTH
-      pack
-    }
+      @canvas = TkCanvas.new {
+	bg "red"
+	height HEIGHT
+	width WIDTH
+	pack
+      }
     
-    @transceivers.each do |transceiver|
-      transceiver.range_oval = TkcOval.new(@canvas, transceiver.loc.x, transceiver.loc.y, transceiver.loc.x, transceiver.loc.y, "fill" => "red", "width" => TRANSMISSION_RADIUS * 2)
-      transceiver.progress_oval = TkcOval.new(@canvas, transceiver.loc.x, transceiver.loc.y, transceiver.loc.x, transceiver.loc.y, "fill" => "red", "width" => 2)
+      @transceivers.each do |transceiver|
+	transceiver.range_oval = TkcOval.new(@canvas, transceiver.loc.x, transceiver.loc.y, transceiver.loc.x, transceiver.loc.y, "fill" => "red", "width" => TRANSMISSION_RADIUS * 2)
+	transceiver.progress_oval = TkcOval.new(@canvas, transceiver.loc.x, transceiver.loc.y, transceiver.loc.x, transceiver.loc.y, "fill" => "red", "width" => 2)
+	puts 'hi'
+      end
     end
   end
   
@@ -80,8 +87,15 @@ end
 
 @simulation = Simulation.new
 
-TkAfter.new(100, -1, proc { $shreduler.run_until(Time.now - $start_time) }).start
-TkAfter.new(0, 1, proc { @simulation.start }).start
+if GUI
+  TkAfter.new(100, -1, proc { $shreduler.run_until(Time.now - $start_time) }).start
+  TkAfter.new(0, 1, proc { @simulation.start }).start
 
-$start_time = Time.now
-Tk.mainloop
+  $start_time = Time.now
+  Tk.mainloop
+else
+  @simulation.start
+  $shreduler.run_until(SIMULATION_SECONDS)
+end
+
+
