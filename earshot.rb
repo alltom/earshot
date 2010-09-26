@@ -54,7 +54,7 @@ class Simulation
 end
 
 
-TRANSCEIVER_RADIUS = 10
+TRANSCEIVER_RADIUS = 5
 class Animator < Qt::Widget
   attr_accessor :sim
   slots 'advance_sim()'
@@ -79,11 +79,21 @@ class Animator < Qt::Widget
     return if @sim.nil?
 
     p = Qt::Painter.new(self)
-    p.setBrush(Qt::Brush.new(Qt::blue))
     @sim.transceivers.each do |t|
+      loc = t.loc
+
+      # visualize transceiver's transmission radius
+      r = TRANSMISSION_RADIUS 
+      color = Qt::Color.new(50, 50, 50, 50)
+      p.setBrush(Qt::Brush.new(color))
+      p.drawEllipse(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2))
+
+      # visualize transceiver
       r = TRANSCEIVER_RADIUS
-      l = t.loc
-      p.drawEllipse(Qt::Rect.new(l.x-r, l.y-r, r*2, r*2))
+      color = Qt::blue
+      p.setBrush(Qt::Brush.new(color))
+      p.drawEllipse(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2))
+
     end
     p.end
   end
