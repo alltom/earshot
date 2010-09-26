@@ -44,8 +44,8 @@ class Transceiver
   end
 
   def move(new_loc, speed)
-    # just in case this agent was already moving, update @cur_loc
-    @cur_loc = loc 
+    # just in case this agent was already moving, update @old_loc
+    @old_loc = loc 
 
     @new_loc = new_loc
     @speed = speed
