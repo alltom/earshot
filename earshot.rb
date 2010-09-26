@@ -87,14 +87,16 @@ class Animator < Qt::Widget
       if t.broadcasting?
         color = Qt::Color.new(100, 0, 0, 50)
       else
-        color = Qt::Color.new(50, 50, 50, 50)
+        color = Qt::Color.new(50, 50, 50, 25)
       end
+      p.setPen(Qt::Color.new(130, 130, 130, 255))
       p.setBrush(Qt::Brush.new(color))
       p.drawEllipse(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2))
 
       # visualize transceiver
       r = TRANSCEIVER_RADIUS
       color = Qt::blue
+      p.setPen(Qt::NoPen)
       p.setBrush(Qt::Brush.new(color))
       p.drawEllipse(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2))
 
