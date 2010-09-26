@@ -73,6 +73,7 @@ class Transceiver
       end
     end
 
+    # every so often, start moving towards some random destination
     spork_loop do
       Shred.yield(rand * 20)
 
