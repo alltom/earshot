@@ -1,4 +1,4 @@
-GUI = false
+GUI = true
 
 require "./loc"
 require "./airspace"
@@ -9,7 +9,7 @@ require "rubygems"
 require "ruck"
 require "logger"
 if GUI
-  require "tk"
+  require "Qt"
 end
 
 include Ruck
@@ -21,11 +21,9 @@ LOG.level = Logger::INFO # DEBUG, INFO, WARN, ERROR, FATAL
 #       so you have to make shreds in Tk's thread
 #       (for example, with TkAfter)
 
-# note: all the commented out Tk code is for reference; having to look that stuff up sucks
-
 SECONDS_PER_BIT = 0.1
-TRANSMISSION_RADIUS = 100
-TRANSCEIVER_COUNT = 40
+TRANSMISSION_RADIUS = 50
+TRANSCEIVER_COUNT = 10
 CHATTY_TRANSCEIVER_COUNT = 1
 WIDTH, HEIGHT = 900, 600
 SIMULATION_SECONDS = 20 # how long the simulation lasts (in virtual seconds)
@@ -33,6 +31,8 @@ SIMULATION_SECONDS = 20 # how long the simulation lasts (in virtual seconds)
 MESSAGES = ["HELLO", "OK", "HELP!", "HOW ARE YOU", "GOOD MORNING", "WHAT IS YOUR QUEST?", "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
 
 class Simulation
+  attr_reader :transceivers
+
   def initialize
     @airspace = Airspace.new
     @transceivers = (1..TRANSCEIVER_COUNT).map { Transceiver.new(Loc.new((rand * WIDTH).to_i, (rand * HEIGHT).to_i), @airspace) }
@@ -41,35 +41,10 @@ class Simulation
 
     @shreduler = Ruck::Shreduler.new
     @shreduler.make_convenient
-    
-    initialize_interface
   end
-  
-  def initialize_interface
-    if GUI
-      # TkButton.new {
-      #   text "Hello, world!"
-      #   command { puts "Hello, world!" }
-      #   pack
-      # }
 
-      # TkMessage.new {
-      #   text "* Ruby\n* Perl\n* Python"
-      #   pack
-      # }
-
-      @canvas = TkCanvas.new {
-	bg "red"
-	height HEIGHT
-	width WIDTH
-	pack
-      }
-    
-      @transceivers.each do |transceiver|
-	transceiver.range_oval = TkcOval.new(@canvas, transceiver.loc.x, transceiver.loc.y, transceiver.loc.x, transceiver.loc.y, "fill" => "red", "width" => TRANSMISSION_RADIUS * 2)
-	transceiver.progress_oval = TkcOval.new(@canvas, transceiver.loc.x, transceiver.loc.y, transceiver.loc.x, transceiver.loc.y, "fill" => "red", "width" => 2)
-      end
-    end
+  def advance
+    $shreduler.run_until(Time.now - $start_time)
   end
   
   def start
@@ -78,20 +53,58 @@ class Simulation
   end
 end
 
-# x1, y1, x2, y2 = 50, 50, 100, 100
-# TkcOval.new(c, x1.to_i, y1.to_i, x1.to_i + 4, y1.to_i + 4, 'fill'=>'red')
-# TkcLine.new(c, x1.to_i, y1.to_i, x2.to_i, y2.to_i, 'width'=>2 )
-# TkcRectangle.new(c, x1.to_i, y1.to_i, x2.to_i, y2.to_i, 'width'=>2 )
-# $o = TkcOval.new(c, x1.to_i, y1.to_i, x2.to_i, y2.to_i, 'width'=>2)
+
+TRANSCEIVER_RADIUS = 10
+class Animator < Qt::Widget
+  attr_accessor :sim
+  slots 'advance_sim()'
+
+  def initialize
+    super
+    resize(WIDTH, HEIGHT)
+
+    # schedule regular breaks from the GUI to run the shreduler
+    shreduler_breaks = Qt::Timer.new
+    Qt::Object.connect(shreduler_breaks, SIGNAL(:timeout), self, SLOT(:advance_sim)) 
+    shreduler_breaks.start(100)
+  end
+
+  def advance_sim
+    return if @sim.nil?
+    @sim.advance
+    repaint
+  end
+
+  def paintEvent(event)
+    return if @sim.nil?
+
+    p = Qt::Painter.new(self)
+    p.setBrush(Qt::Brush.new(Qt::blue))
+    @sim.transceivers.each do |t|
+      r = TRANSCEIVER_RADIUS
+      l = t.loc
+      p.drawEllipse(Qt::Rect.new(l.x-r, l.y-r, r*2, r*2))
+    end
+    p.end
+  end
+end
+
 
 @simulation = Simulation.new
 
 if GUI
-  TkAfter.new(100, -1, proc { $shreduler.run_until(Time.now - $start_time) }).start
-  TkAfter.new(0, 1, proc { @simulation.start }).start
+  # construct the GUI
+  app = Qt::Application.new(ARGV)
+  anim = Animator.new
+
+  # anim will render @simulation, and also give it time to run
+  anim.sim = @simulation
+  anim.show
 
   $start_time = Time.now
-  Tk.mainloop
+  @simulation.start
+
+  app.exec
 else
   @simulation.start
   $shreduler.run_until(SIMULATION_SECONDS)
