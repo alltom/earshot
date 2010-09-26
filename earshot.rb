@@ -21,7 +21,7 @@ LOG.level = Logger::INFO # DEBUG, INFO, WARN, ERROR, FATAL
 #       so you have to make shreds in Tk's thread
 #       (for example, with TkAfter)
 
-SECONDS_PER_BIT = 0.1
+SECONDS_PER_BIT = 0.5
 TRANSMISSION_RADIUS = 50
 TRANSCEIVER_COUNT = 10
 CHATTY_TRANSCEIVER_COUNT = 1
@@ -55,6 +55,7 @@ end
 
 
 TRANSCEIVER_RADIUS = 5
+QT_FULL_CIRCLE = 360 * 16  # Qt measures angles in 1/16ths of a degree
 class Animator < Qt::Widget
   attr_accessor :sim
   slots 'advance_sim()'
@@ -100,6 +101,15 @@ class Animator < Qt::Widget
       p.setBrush(Qt::Brush.new(color))
       p.drawEllipse(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2))
 
+      # visualize broadcast progress
+      if t.broadcasting?
+	r = TRANSMISSION_RADIUS 
+	angle = t.outgoing_broadcast.progress * QT_FULL_CIRCLE
+	pen = Qt::Pen.new(Qt::Color.new(0, 130, 0, 255))
+	pen.setWidth(4)
+	p.setPen(pen)
+	p.drawArc(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2), 0, angle)
+      end
     end
     p.end
   end
