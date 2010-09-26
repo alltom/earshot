@@ -66,7 +66,7 @@ class Animator < Qt::Widget
     # schedule regular breaks from the GUI to run the shreduler
     shreduler_breaks = Qt::Timer.new
     Qt::Object.connect(shreduler_breaks, SIGNAL(:timeout), self, SLOT(:advance_sim)) 
-    shreduler_breaks.start(100)
+    shreduler_breaks.start(1000.0/60)
   end
 
   def advance_sim
@@ -82,9 +82,13 @@ class Animator < Qt::Widget
     @sim.transceivers.each do |t|
       loc = t.loc
 
-      # visualize transceiver's transmission radius
+      # visualize transceiver's transmissions and range
       r = TRANSMISSION_RADIUS 
-      color = Qt::Color.new(50, 50, 50, 50)
+      if t.broadcasting?
+        color = Qt::Color.new(100, 0, 0, 50)
+      else
+        color = Qt::Color.new(50, 50, 50, 50)
+      end
       p.setBrush(Qt::Brush.new(color))
       p.drawEllipse(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2))
 
