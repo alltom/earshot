@@ -68,7 +68,6 @@ class Simulation
       @transceivers.each do |transceiver|
 	transceiver.range_oval = TkcOval.new(@canvas, transceiver.loc.x, transceiver.loc.y, transceiver.loc.x, transceiver.loc.y, "fill" => "red", "width" => TRANSMISSION_RADIUS * 2)
 	transceiver.progress_oval = TkcOval.new(@canvas, transceiver.loc.x, transceiver.loc.y, transceiver.loc.x, transceiver.loc.y, "fill" => "red", "width" => 2)
-	puts 'hi'
       end
     end
   end
