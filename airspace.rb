@@ -38,14 +38,8 @@ class Airspace
       
       @broadcasts.each do |broadcast|
         broadcast.bits_left -= 1
-	if GUI
-	  broadcast.sender.progress_oval.width = broadcast.progress * TRANSMISSION_RADIUS * 2
-	end
         if broadcast.bits_left == 0
           LOG.info "#{broadcast} from #{broadcast.sender} done"
-	  if GUI
-	    broadcast.sender.progress_oval.width = 2
-	  end
           broadcast.receivers.each do |receiver|
             receiver.received_broadcast(broadcast)
           end
