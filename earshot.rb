@@ -43,6 +43,14 @@ class Simulation
     @shreduler.make_convenient
   end
 
+  def add_transceiver(loc=nil)
+    loc ||= Loc.new((rand * WIDTH).to_i, (rand * HEIGHT).to_i)
+    transceiver = Transceiver.new(loc, @airspace)
+    @transceivers << transceiver
+    @airspace << transceiver
+    transceiver.start
+  end
+
   def advance
     $shreduler.run_until(Time.now - $start_time)
   end
@@ -68,6 +76,11 @@ class Animator < Qt::Widget
     shreduler_breaks = Qt::Timer.new
     Qt::Object.connect(shreduler_breaks, SIGNAL(:timeout), self, SLOT(:advance_sim)) 
     shreduler_breaks.start(1000.0/60)
+  end
+
+  def mouseReleaseEvent(mouse_event)
+    loc = Loc.new(mouse_event.x, mouse_event.y)
+    @sim.add_transceiver(loc)
   end
 
   def advance_sim
