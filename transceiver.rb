@@ -1,4 +1,4 @@
-WIDTH, HEIGHT = 900, 600
+
 MIN_SPEED, MAX_SPEED = 5, 20
 
 class Transceiver
