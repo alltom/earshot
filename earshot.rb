@@ -4,6 +4,7 @@ require "./transceiver"
 require "./broadcast"
 require "./simulation"
 require "./uid"
+require "./message"
 
 require "rubygems"
 require "ruck"

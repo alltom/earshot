@@ -117,7 +117,7 @@ class ChattyTransceiver < Transceiver
       Ruck::Shred.yield(rand * 3)
       
       if @outgoing_broadcast.nil?
-        broadcast = broadcast_message(CONFIG[:messages][rand CONFIG[:messages].length])
+        broadcast = broadcast_message(Message.new(CONFIG[:messages][rand CONFIG[:messages].length]))
         Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
       end
     end
