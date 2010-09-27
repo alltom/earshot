@@ -1,0 +1,4 @@
+158, 240, 173  cool aquamarine
+158, 200, 173  darker aquamarine
+40, 40, 40     background grey
+
