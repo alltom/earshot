@@ -17,8 +17,7 @@ class Airspace
   end
   
   def start
-    spork_loop(SECONDS_PER_BIT) do
-      # all_receivers = @broadcast.inject([]) { |a, b| a |= b.receivers }
+    spork_loop(CONFIG[:seconds_per_bit]) do
       # ensure that no transceiver is receiving two broadcasts at once
       all_receivers = []
       collision_receivers = []
@@ -28,6 +27,7 @@ class Airspace
         end
         all_receivers += broadcast.receivers
       end
+      
       collision_receivers.each do |r|
         @broadcasts.each do |b|
           b.failed_receivers << r

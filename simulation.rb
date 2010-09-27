@@ -4,8 +4,8 @@ class Simulation
 
   def initialize
     @airspace = Airspace.new
-    @transceivers = (1..TRANSCEIVER_COUNT).map { Transceiver.new(Loc.new((rand * WIDTH).to_i, (rand * HEIGHT).to_i), @airspace) }
-    @transceivers += (1..CHATTY_TRANSCEIVER_COUNT).map { ChattyTransceiver.new(Loc.new((rand * WIDTH).to_i, (rand * HEIGHT).to_i), @airspace) }
+    @transceivers = (1..CONFIG[:transceiver_count]).map { Transceiver.new(Loc.new((rand * CONFIG[:width]).to_i, (rand * CONFIG[:height]).to_i), @airspace) }
+    @transceivers += (1..CONFIG[:chatty_transceiver_count]).map { ChattyTransceiver.new(Loc.new((rand * CONFIG[:width]).to_i, (rand * CONFIG[:height]).to_i), @airspace) }
     @transceivers.each { |t| @airspace << t }
 
     @shreduler = Ruck::Shreduler.new
@@ -13,7 +13,7 @@ class Simulation
   end
 
   def add_transceiver(loc=nil)
-    loc ||= Loc.new((rand * WIDTH).to_i, (rand * HEIGHT).to_i)
+    loc ||= Loc.new((rand * CONFIG[:width]).to_i, (rand * CONFIG[:height]).to_i)
     transceiver = Transceiver.new(loc, @airspace)
     @transceivers << transceiver
     @airspace << transceiver

@@ -7,7 +7,7 @@ class Animator < Qt::Widget
 
   def initialize
     super
-    resize(WIDTH, HEIGHT)
+    resize(CONFIG[:width], CONFIG[:height])
 
     # schedule regular breaks from the GUI to run the shreduler
     shreduler_breaks = Qt::Timer.new
@@ -34,7 +34,7 @@ class Animator < Qt::Widget
       loc = t.loc
 
       # visualize transceiver's transmissions and range
-      r = TRANSMISSION_RADIUS 
+      r = CONFIG[:transmission_radius] 
       if t.broadcasting?
         color = Qt::Color.new(100, 0, 0, 50)
       else
@@ -45,7 +45,7 @@ class Animator < Qt::Widget
       p.drawEllipse(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2))
 
       # visualize transceiver
-      r = TRANSCEIVER_RADIUS
+      r = CONFIG[:transceiver_radius]
       color = Qt::blue
       p.setPen(Qt::NoPen)
       p.setBrush(Qt::Brush.new(color))
@@ -53,12 +53,12 @@ class Animator < Qt::Widget
 
       # visualize broadcast progress
       if t.broadcasting?
-	r = TRANSMISSION_RADIUS 
-	angle = t.outgoing_broadcast.progress * QT_FULL_CIRCLE
-	pen = Qt::Pen.new(Qt::Color.new(0, 130, 0, 255))
-	pen.setWidth(4)
-	p.setPen(pen)
-	p.drawArc(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2), 0, angle)
+        r = CONFIG[:transmission_radius] 
+        angle = t.outgoing_broadcast.progress * QT_FULL_CIRCLE
+        pen = Qt::Pen.new(Qt::Color.new(0, 130, 0, 255))
+        pen.setWidth(4)
+        p.setPen(pen)
+        p.drawArc(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2), 0, angle)
       end
     end
     p.end

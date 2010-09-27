@@ -10,6 +10,15 @@ require "logger"
 
 CONFIG = {}
 
+CONFIG[:seconds_per_bit] = 0.5
+CONFIG[:transmission_radius] = 50
+CONFIG[:transceiver_radius] = 5
+CONFIG[:transceiver_count] = 10
+CONFIG[:chatty_transceiver_count] = 1
+CONFIG[:width], CONFIG[:height] = 900, 600
+CONFIG[:simulation_seconds] = 20 # how long the simulations lasts (in virtual seconds)
+CONFIG[:messages] = ["HELLO", "OK", "HELP!", "HOW ARE YOU", "GOOD MORNING", "WHAT IS YOUR QUEST?", "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
+
 # parse command-line options and GO!
 
 opts = OptionParser.new
@@ -34,21 +43,11 @@ LOG.level = Logger::INFO # DEBUG, INFO, WARN, ERROR, FATAL
 #       so you have to make shreds in Tk's thread
 #       (for example, with TkAfter)
 
-SECONDS_PER_BIT = 0.5
-TRANSMISSION_RADIUS = 50
-TRANSCEIVER_COUNT = 10
-CHATTY_TRANSCEIVER_COUNT = 1
-WIDTH, HEIGHT = 900, 600
-SIMULATION_SECONDS = 20 # how long the simulation lasts (in virtual seconds);
-TRANSCEIVER_RADIUS = 5
-
-MESSAGES = ["HELLO", "OK", "HELP!", "HOW ARE YOU", "GOOD MORNING", "WHAT IS YOUR QUEST?", "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
-
 @simulation = Simulation.new
 
 if CONFIG[:headless]
   @simulation.start
-  $shreduler.run_until(SIMULATION_SECONDS)
+  $shreduler.run_until(CONFIG[:simulation_seconds])
 else
   # construct the GUI
   app = Qt::Application.new(ARGV)

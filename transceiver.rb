@@ -54,7 +54,7 @@ class Transceiver
   
   def broadcast_message(message)
     if @outgoing_broadcast.nil?
-      broadcast = Broadcast.new(self, loc, TRANSMISSION_RADIUS, message)
+      broadcast = Broadcast.new(self, loc, CONFIG[:transmission_radius], message)
       @airspace.send_broadcast(broadcast)
       @outgoing_broadcast = broadcast
     else
@@ -69,7 +69,7 @@ class Transceiver
       
       if @outgoing_broadcast.nil? && @stored_messages.length > 0
         broadcast = broadcast_message(@stored_messages[rand @stored_messages.length])
-        Ruck::Shred.yield(SECONDS_PER_BIT * broadcast.message.length)
+        Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
       end
     end
 
@@ -77,7 +77,7 @@ class Transceiver
     spork_loop do
       Ruck::Shred.yield(rand * 20)
 
-      new_loc = Loc.new((rand * WIDTH).to_i, (rand * HEIGHT).to_i) 
+      new_loc = Loc.new((rand * CONFIG[:width]).to_i, (rand * CONFIG[:height]).to_i) 
       speed = rand*(MAX_SPEED-MIN_SPEED) + MIN_SPEED
       move(new_loc, speed)
       LOG.info "#{self} started moving to #{new_loc} with speed #{speed}"
@@ -112,8 +112,8 @@ class ChattyTransceiver < Transceiver
       Ruck::Shred.yield(rand * 3)
       
       if @outgoing_broadcast.nil?
-        broadcast = broadcast_message(MESSAGES[rand MESSAGES.length])
-        Ruck::Shred.yield(SECONDS_PER_BIT * broadcast.message.length)
+        broadcast = broadcast_message(CONFIG[:messages][rand CONFIG[:messages].length])
+        Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
       end
     end
   end
