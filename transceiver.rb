@@ -7,7 +7,12 @@ class Transceiver
   attr_accessor :range_oval
   attr_accessor :progress_oval
   
+  def self.uid
+    (@uuid_generator ||= UIDGenerator.new("AGENT")).next
+  end
+  
   def initialize(loc, airspace)
+    @uid = Transceiver.uid
     @old_loc = loc
     @new_loc = nil    # the agent's new destination
     @speed = nil      # the agent's speed
@@ -99,7 +104,7 @@ class Transceiver
   end
   
   def to_s
-    "<Transceiver:#{loc}>"
+    "<Transceiver:#{@uid} @ #{loc}>"
   end
 end
 

@@ -3,6 +3,7 @@ require "./airspace"
 require "./transceiver"
 require "./broadcast"
 require "./simulation"
+require "./uid"
 
 require "rubygems"
 require "ruck"
