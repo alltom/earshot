@@ -65,17 +65,17 @@ class Transceiver
   def start
     # every so often, broadcast stored messages
     spork_loop do
-      Shred.yield(rand * 10)
+      Ruck::Shred.yield(rand * 10)
       
       if @outgoing_broadcast.nil? && @stored_messages.length > 0
         broadcast = broadcast_message(@stored_messages[rand @stored_messages.length])
-        Shred.yield(SECONDS_PER_BIT * broadcast.message.length)
+        Ruck::Shred.yield(SECONDS_PER_BIT * broadcast.message.length)
       end
     end
 
     # every so often, start moving towards some random destination
     spork_loop do
-      Shred.yield(rand * 20)
+      Ruck::Shred.yield(rand * 20)
 
       new_loc = Loc.new((rand * WIDTH).to_i, (rand * HEIGHT).to_i) 
       speed = rand*(MAX_SPEED-MIN_SPEED) + MIN_SPEED
@@ -109,11 +109,11 @@ class ChattyTransceiver < Transceiver
     
     # send one original message in the first few seconds
     spork do
-      Shred.yield(rand * 3)
+      Ruck::Shred.yield(rand * 3)
       
       if @outgoing_broadcast.nil?
         broadcast = broadcast_message(MESSAGES[rand MESSAGES.length])
-        Shred.yield(SECONDS_PER_BIT * broadcast.message.length)
+        Ruck::Shred.yield(SECONDS_PER_BIT * broadcast.message.length)
       end
     end
   end

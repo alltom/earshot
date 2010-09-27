@@ -20,12 +20,11 @@ rescue OptionParser::InvalidOption => e
   exit
 end
 
+# require Qt if using a GUI
 unless CONFIG[:headless]
   require "Qt"
   require "./animator"
 end
-
-include Ruck
 
 LOG = Logger.new(STDOUT)
 LOG.level = Logger::INFO # DEBUG, INFO, WARN, ERROR, FATAL
