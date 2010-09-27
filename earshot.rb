@@ -12,7 +12,7 @@ CONFIG = {}
 
 CONFIG[:seconds_per_bit] = 0.5
 CONFIG[:transmission_radius] = 50
-CONFIG[:transceiver_radius] = 5
+CONFIG[:transceiver_radius] = 4
 CONFIG[:transceiver_count] = 10
 CONFIG[:chatty_transceiver_count] = 1
 CONFIG[:width], CONFIG[:height] = 900, 600

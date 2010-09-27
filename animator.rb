@@ -27,26 +27,33 @@ class Animator < Qt::Widget
   end
 
   def paintEvent(event)
+    fg = Qt::Color.new(158, 240, 216)
+    range = Qt::Color.new(158, 240, 216, 60)
+    bg = Qt::Color.new(40, 40, 40)
+    agent = Qt::Color.new(160, 240, 234)
+
     return if @sim.nil?
 
     p = Qt::Painter.new(self)
+    p.setRenderHint(Qt::Painter::Antialiasing, true);
+
+    # fill background. there's probably a better way to do this...
+    p.setBrush(Qt::Brush.new(bg))
+    p.drawRect(0, 0, WIDTH, HEIGHT)
+
     @sim.transceivers.each do |t|
       loc = t.loc
 
-      # visualize transceiver's transmissions and range
-      r = CONFIG[:transmission_radius] 
-      if t.broadcasting?
-        color = Qt::Color.new(100, 0, 0, 50)
-      else
-        color = Qt::Color.new(50, 50, 50, 25)
-      end
-      p.setPen(Qt::Color.new(130, 130, 130, 255))
+      # visualize transceiver
+      r = CONFIG[:transceiver_radius]
+      color = agent
+      p.setPen(Qt::NoPen)
       p.setBrush(Qt::Brush.new(color))
       p.drawEllipse(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2))
 
-      # visualize transceiver
-      r = CONFIG[:transceiver_radius]
-      color = Qt::blue
+      # visualize transceiver's range
+      r = CONFIG[:transmission_radius] 
+      color = range
       p.setPen(Qt::NoPen)
       p.setBrush(Qt::Brush.new(color))
       p.drawEllipse(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2))
@@ -55,7 +62,7 @@ class Animator < Qt::Widget
       if t.broadcasting?
         r = CONFIG[:transmission_radius] 
         angle = t.outgoing_broadcast.progress * QT_FULL_CIRCLE
-        pen = Qt::Pen.new(Qt::Color.new(0, 130, 0, 255))
+        pen = Qt::Pen.new(fg)
         pen.setWidth(4)
         p.setPen(pen)
         p.drawArc(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2), 0, angle)
