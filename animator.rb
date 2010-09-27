@@ -39,7 +39,7 @@ class Animator < Qt::Widget
 
     # fill background. there's probably a better way to do this...
     p.setBrush(Qt::Brush.new(bg))
-    p.drawRect(0, 0, WIDTH, HEIGHT)
+    p.drawRect(0, 0, CONFIG[:width], CONFIG[:height])
 
     @sim.transceivers.each do |t|
       loc = t.loc

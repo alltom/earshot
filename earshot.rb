@@ -9,6 +9,7 @@ require "./message"
 require "rubygems"
 require "ruck"
 require "logger"
+require "optparse"
 
 CONFIG = {}
 
