@@ -13,7 +13,12 @@ CONFIG = {}
 
 opts = OptionParser.new
 opts.on("--headless", "--no-gui") { CONFIG[:headless] = true }
-opts.parse! ARGV
+begin
+  opts.parse! ARGV
+rescue OptionParser::InvalidOption => e
+  $stderr.puts "#{e.reason}: #{e.args.join " "}"
+  exit
+end
 
 unless CONFIG[:headless]
   require "Qt"
