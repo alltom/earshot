@@ -8,6 +8,11 @@ class Animator < Gosu::Window
   def initialize
     super(CONFIG[:width], CONFIG[:height], false)
     self.caption = 'earshot'
+    
+    @circle_buffer = glGenBuffers(1)[0]
+    glBindBuffer GL_ARRAY_BUFFER, @circle_buffer
+    glBufferData GL_ARRAY_BUFFER, pie_verts_buffer.length, pie_verts_buffer, GL_STATIC_DRAW
+    p pie_verts_buffer
   end
 
   def update
@@ -23,30 +28,48 @@ class Animator < Gosu::Window
     loc = Loc.new(mouse_x, mouse_y)
     @sim.add_transceiver(loc)
   end
-
-  def draw_pie(cx, cy, radius, radians, color)
+  
+  def pie_verts_buffer
+    @pie_verts_buffer ||= pie_verts.flatten.pack("e*")
+  end
+  
+  def pie_verts
+    return @pie_verts if @pie_verts
+    
     tau = 2*Math::PI
     rez = tau/40
     
+    @pie_verts = []
+    
+    @pie_verts << [0, 0, 0]
+
+    angle = 0
+    while angle + rez <= tau do
+      @pie_verts << [Math::cos(angle), Math::sin(angle), 0]
+      angle += rez
+    end
+  
+    @pie_verts << [Math::cos(0), Math::sin(0), 0]
+    
+    @pie_verts
+  end
+
+  def draw_pie(cx, cy, radius, radians, color)
     gl do
-      col = [color.red/255.0, color.green/255.0, color.blue/255.0, color.alpha/255.0]
-      
       glEnable(GL_BLEND)
       
-      glBegin(GL_TRIANGLE_FAN)
-        glColor4f(*col)
-        glVertex3d(cx, cy, 0)
-    
-        angle = 0
-        while angle + rez <= radians do
-          glColor4f(*col)
-          glVertex3d(cx + radius * Math::cos(angle), cy + radius * Math::sin(angle), 0)
-          angle += rez
-        end
+      glColor4f(color.red/255.0, color.green/255.0, color.blue/255.0, color.alpha/255.0)
+      glTranslate cx, cy, 0
+      glScale radius, radius, 0
       
-        glColor4f(*col)
-        glVertex3d(cx + radius * Math::cos(0), cy + radius * Math::sin(0), 0)
-      glEnd
+      glBindBuffer GL_ARRAY_BUFFER, @circle_buffer
+      glVertexPointer 3, GL_FLOAT, 0, 0
+
+      glEnableClientState GL_VERTEX_ARRAY
+
+      glDrawArrays GL_TRIANGLE_FAN, 0, pie_verts.length
+
+      glDisableClientState GL_COLOR_ARRAY
     end
   end
 
@@ -54,23 +77,19 @@ class Animator < Gosu::Window
     tau = 2*Math::PI
     rez = tau/40
     
-    angle = 0
-    while angle + rez <= radians do
-      end_angle = angle + rez
-      x1 = cx + radius * Math::cos(angle)
-      y1 = cy + radius * Math::sin(angle)
-      x2 = cx + radius * Math::cos(end_angle)
-      y2 = cy + radius * Math::sin(end_angle)
-      draw_line(x1, y1, color, x2, y2, color)
-      angle = end_angle
+    gl do
+      col = [color.red/255.0, color.green/255.0, color.blue/255.0, color.alpha/255.0]
+      
+      glBegin(GL_LINE_STRIP)
+        angle = 0
+        while angle + rez <= radians do
+          glColor4f(*col)
+          glVertex2f(cx + radius * Math::cos(angle), cy + radius * Math::sin(angle))
+          angle += rez
+        end
+      glEnd
     end
-    x1 = radius * Math::cos(angle)
-    y1 = radius * Math::sin(angle)
-    x2 = radius * Math::cos(radians)
-    y2 = radius * Math::sin(radians)
-    draw_line(x1, y1, color, x2, y2, color)
   end
-
 
   def draw_circle(cx, cy, radius, color, filled=true)
     if filled
@@ -87,7 +106,7 @@ class Animator < Gosu::Window
     agent = Gosu::Color.new(160, 240, 234)
 
     return if @sim.nil?
-
+    
     # fill background. there's probably a better way to do this...
     draw_quad(0, 0, bg, 0, CONFIG[:height], bg, CONFIG[:width], CONFIG[:height], bg, CONFIG[:width], 0, bg)
 
