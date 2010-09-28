@@ -51,7 +51,7 @@ else
   # anim will render @simulation, and also give it time to run
   anim.sim = @simulation
 
-  # note: shreds only work in the thread they were created,
+  # note: shreds only work in the thread they were created
   @simulation.start
 
   anim.show
