@@ -2,6 +2,14 @@
 include Gl
 include Glu
 
+module Gosu
+  class Color
+    def to_gl
+      [red/255.0, green/255.0, blue/255.0, alpha/255.0]
+    end
+  end
+end
+
 class Animator < Gosu::Window
   attr_accessor :sim
 
@@ -43,7 +51,7 @@ class Animator < Gosu::Window
 
     return if @sim.nil?
     
-    glClearColor bg.red/255.0, bg.green/255.0, bg.blue/255.0, bg.alpha/255.0
+    glClearColor *bg.to_gl
     glClearDepth 0
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     
@@ -106,7 +114,7 @@ class GCircle < VBO
   end
   
   def draw(x = 0, y = 0, radius = 1, color = nil)
-    glColor4f(color.red/255.0, color.green/255.0, color.blue/255.0, color.alpha/255.0) if color
+    glColor4f(*color.to_gl) if color
     
     glPushMatrix
     
@@ -156,7 +164,7 @@ class GArc
     if color.nil?
       col = [1, 1, 1, 1]
     else
-      col = [color.red/255.0, color.green/255.0, color.blue/255.0, color.alpha/255.0] if color
+      col = color.to_gl
     end
     
     glBegin(GL_LINE_STRIP)
