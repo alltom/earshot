@@ -42,10 +42,6 @@ end
 LOG = Logger.new(STDOUT)
 LOG.level = Logger::INFO # DEBUG, INFO, WARN, ERROR, FATAL
 
-# note: shreds only work in the thread they were created,
-#       so you have to make shreds in Tk's thread
-#       (for example, with TkAfter)
-
 @simulation = Simulation.new
 
 if CONFIG[:headless]
