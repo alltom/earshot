@@ -10,6 +10,7 @@ class Animator < Gosu::Window
     self.caption = "earshot"
     
     @circle = GCircle.new(40)
+    @arc = GArc.new(40)
   end
 
   def update
@@ -27,25 +28,12 @@ class Animator < Gosu::Window
   end
 
   def draw_pie(cx, cy, radius, color)
-    glEnable(GL_BLEND)
     glColor4f(color.red/255.0, color.green/255.0, color.blue/255.0, color.alpha/255.0)
     @circle.draw(cx, cy, radius)
   end
 
   def draw_arc(cx, cy, radius, radians, color)
-    tau = 2*Math::PI
-    rez = tau/40
-    
-    col = [color.red/255.0, color.green/255.0, color.blue/255.0, color.alpha/255.0]
-    
-    glBegin(GL_LINE_STRIP)
-      angle = 0
-      while angle + rez <= radians do
-        glColor4f(*col)
-        glVertex2f(cx + radius * Math::cos(angle), cy + radius * Math::sin(angle))
-        angle += rez
-      end
-    glEnd
+    @arc.draw cx, cy, radius, radians, color
   end
 
   def draw_circle(cx, cy, radius, color, filled=true)
@@ -68,17 +56,19 @@ class Animator < Gosu::Window
     draw_quad(0, 0, bg, 0, CONFIG[:height], bg, CONFIG[:width], CONFIG[:height], bg, CONFIG[:width], 0, bg)
     
     gl do
+      glEnable(GL_BLEND)
+      
       @sim.transceivers.each do |t|
         loc = t.loc
-
+        
         # visualize transceiver
         r = CONFIG[:transceiver_radius]
         draw_circle(loc.x, loc.y, r, agent)
-
+        
         # visualize transceiver's range
         r = CONFIG[:transmission_radius] 
         draw_circle(loc.x, loc.y, r, range)
-
+        
         # visualize broadcast progress
         if t.broadcasting?
           r = CONFIG[:transmission_radius] 
@@ -156,4 +146,32 @@ class GCircle < VBO
       
       verts
     end
+end
+
+class GArc
+  attr_accessor :subdivisions
+  
+  def initialize(subdivisions)
+    @subdivisions = subdivisions
+  end
+  
+  def draw(x = 0, y = 0, radius = 1, radians = 3.14, color = nil)
+    tau = 2*Math::PI
+    rez = tau/40
+    
+    if color.nil?
+      col = [1, 1, 1, 1]
+    else
+      col = [color.red/255.0, color.green/255.0, color.blue/255.0, color.alpha/255.0] if color
+    end
+    
+    glBegin(GL_LINE_STRIP)
+      angle = 0
+      while angle + rez <= radians do
+        glColor4f(*col)
+        glVertex2f(x + radius * Math::cos(angle), y + radius * Math::sin(angle))
+        angle += rez
+      end
+    glEnd
+  end
 end
