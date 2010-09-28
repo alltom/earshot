@@ -33,6 +33,7 @@ rescue OptionParser::InvalidOption => e
   exit
 end
 
+# LOG = Logger.new(File.open "/dev/null", "w")
 LOG = Logger.new(STDOUT)
 LOG.level = Logger::INFO # DEBUG, INFO, WARN, ERROR, FATAL
 
