@@ -84,6 +84,10 @@ class Animator < Gosu::Window
   end
 end
 
+# wraps an OpenGL vector buffer object (VBO), which is just an array
+# in graphics card memory. assign an array of numbers to the vertices
+# attribute and it will be written to video memory immediately after
+# being packed as single-precision floats.
 class VBO
   attr_reader :vertices
   
@@ -111,6 +115,7 @@ class VBO
     end
 end
 
+# VBO-backed circle mesh with the given number of subdivisions.
 class GCircle < VBO
   def initialize(subdivisions = 40)
     super()
@@ -153,6 +158,7 @@ class GCircle < VBO
     end
 end
 
+# renders OpenGL immediate mode arcs using LINE_LOOP.
 class GArc
   attr_accessor :subdivisions
   
