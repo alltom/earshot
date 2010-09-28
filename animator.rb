@@ -10,6 +10,10 @@ module Gosu
   end
 end
 
+module Math
+  Tau = 2 * PI
+end
+
 class Animator < Gosu::Window
   attr_accessor :sim
 
@@ -39,7 +43,7 @@ class Animator < Gosu::Window
     if filled
       @circle.draw cx, cy, radius, color
     else
-      @arc.draw cx, cy, radius, radians, color
+      @arc.draw cx, cy, radius, Math::Tau, color
     end
   end
 
@@ -72,7 +76,7 @@ class Animator < Gosu::Window
         # visualize broadcast progress
         if t.broadcasting?
           r = CONFIG[:transmission_radius] 
-          angle = t.outgoing_broadcast.progress * Math::PI*2
+          angle = t.outgoing_broadcast.progress * Math::Tau
           @arc.draw loc.x, loc.y, r, angle, fg
         end
       end
@@ -132,14 +136,13 @@ class GCircle < VBO
   
   protected
     def make_verts(subdivisions)
-      tau = 2 * Math::PI
-      rez = tau/subdivisions
+      rez = Math::Tau/subdivisions
       
       verts = []
       verts << [0, 0, 0]
       
       angle = 0
-      while angle + rez <= tau do
+      while angle + rez <= Math::Tau do
         verts << [Math::cos(angle), Math::sin(angle), 0]
         angle += rez
       end
@@ -158,8 +161,7 @@ class GArc
   end
   
   def draw(x = 0, y = 0, radius = 1, radians = 3.14, color = nil)
-    tau = 2*Math::PI
-    rez = tau/40
+    rez = Math::Tau/40
     
     if color.nil?
       col = [1, 1, 1, 1]
