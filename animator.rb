@@ -6,14 +6,20 @@ class Animator < Gosu::Window
 
   def initialize
     super(CONFIG[:width], CONFIG[:height], false)
+    self.caption = 'earshot'
   end
 
   def update
     @sim.advance unless @sim.nil?
   end
 
-  def mouseReleaseEvent(mouse_event)
-    loc = Loc.new(mouse_event.x, mouse_event.y)
+  def needs_cursor?
+    true
+  end
+
+  def button_up(id)
+    return unless id == Gosu::MsLeft
+    loc = Loc.new(mouse_x, mouse_y)
     @sim.add_transceiver(loc)
   end
 
