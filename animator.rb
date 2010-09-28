@@ -38,8 +38,34 @@ class Animator < Gosu::Window
     draw_triangle(x1, y1, color, x2, y2, color, cx, cy, color)
   end
 
-  def draw_circle(cx, cy, radius, color)
-    draw_pie(cx, cy, radius, Math::PI*2, color)
+  def draw_arc(cx, cy, radius, radians, color)
+    tau = 2*Math::PI
+    rez = tau/400
+    
+    angle = 0
+    while angle + rez <= radians do
+      end_angle = angle + rez
+      x1 = cx + radius * Math::cos(angle)
+      y1 = cy + radius * Math::sin(angle)
+      x2 = cx + radius * Math::cos(end_angle)
+      y2 = cy + radius * Math::sin(end_angle)
+      draw_line(x1, y1, color, x2, y2, color)
+      angle = end_angle
+    end
+    x1 = radius * Math::cos(angle)
+    y1 = radius * Math::sin(angle)
+    x2 = radius * Math::cos(radians)
+    y2 = radius * Math::sin(radians)
+    draw_line(x1, y1, color, x2, y2, color)
+  end
+
+
+  def draw_circle(cx, cy, radius, color, filled=true)
+    if filled
+      draw_pie(cx, cy, radius, Math::PI*2, color)
+    else
+      draw_arc(cx, cy, radius, Math::PI*2, color)
+    end
   end
 
   def draw
@@ -65,14 +91,11 @@ class Animator < Gosu::Window
       draw_circle(loc.x, loc.y, r, range)
 
       # visualize broadcast progress
-      #if t.broadcasting?
-      #  r = CONFIG[:transmission_radius] 
-      #  angle = t.outgoing_broadcast.progress * QT_FULL_CIRCLE
-      #  pen = Qt::Pen.new(fg)
-      #  pen.setWidth(4)
-      #  p.setPen(pen)
-      #  p.drawArc(Qt::Rect.new(loc.x-r, loc.y-r, r*2, r*2), 0, angle)
-      #end
+      if t.broadcasting?
+        r = CONFIG[:transmission_radius] 
+        angle = t.outgoing_broadcast.progress * Math::PI*2
+        draw_arc(loc.x, loc.y, r, angle, fg)
+      end
     end
   end
 end
