@@ -21,10 +21,11 @@ class Simulation
   end
 
   def advance
-    $shreduler.run_until(Time.now - $start_time)
+    $shreduler.run_until(Time.now - @start_time)
   end
   
   def start
+    @start_time = Time.now
     @airspace.start
     @transceivers.each { |t| t.start }
   end
