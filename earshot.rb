@@ -35,7 +35,7 @@ end
 
 # require Qt if using a GUI
 unless CONFIG[:headless]
-  require "Qt"
+  require "gosu"
   require "./animator"
 end
 
@@ -53,15 +53,13 @@ if CONFIG[:headless]
   $shreduler.run_until(CONFIG[:simulation_seconds])
 else
   # construct the GUI
-  app = Qt::Application.new(ARGV)
   anim = Animator.new
 
   # anim will render @simulation, and also give it time to run
   anim.sim = @simulation
-  anim.show
 
   $start_time = Time.now
   @simulation.start
 
-  app.exec
+  anim.show
 end
