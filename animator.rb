@@ -1,6 +1,4 @@
 
-QT_FULL_CIRCLE = 360 * 16  # Qt measures angles in 1/16ths of a degree
-
 class Animator < Gosu::Window
   attr_accessor :sim
 
