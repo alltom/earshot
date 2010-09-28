@@ -33,12 +33,6 @@ rescue OptionParser::InvalidOption => e
   exit
 end
 
-# require Qt if using a GUI
-unless CONFIG[:headless]
-  require "gosu"
-  require "./animator"
-end
-
 LOG = Logger.new(STDOUT)
 LOG.level = Logger::INFO # DEBUG, INFO, WARN, ERROR, FATAL
 
@@ -48,6 +42,9 @@ if CONFIG[:headless]
   @simulation.start
   $shreduler.run_until(CONFIG[:simulation_seconds])
 else
+  require "gosu"
+  require "./animator"
+  
   # construct the GUI
   anim = Animator.new
 
