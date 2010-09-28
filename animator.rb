@@ -1,4 +1,7 @@
 
+include Gl
+include Glu
+
 class Animator < Gosu::Window
   attr_accessor :sim
 
@@ -23,28 +26,33 @@ class Animator < Gosu::Window
 
   def draw_pie(cx, cy, radius, radians, color)
     tau = 2*Math::PI
-    rez = tau/400
+    rez = tau/40
     
-    angle = 0
-    while angle + rez <= radians do
-      end_angle = angle + rez
-      x1 = cx + radius * Math::cos(angle)
-      y1 = cy + radius * Math::sin(angle)
-      x2 = cx + radius * Math::cos(end_angle)
-      y2 = cy + radius * Math::sin(end_angle)
-      draw_triangle(x1, y1, color, x2, y2, color, cx, cy, color)
-      angle = end_angle
+    gl do
+      col = [color.red/255.0, color.green/255.0, color.blue/255.0, color.alpha/255.0]
+      
+      glEnable(GL_BLEND)
+      
+      glBegin(GL_TRIANGLE_FAN)
+        glColor4f(*col)
+        glVertex3d(cx, cy, 0)
+    
+        angle = 0
+        while angle + rez <= radians do
+          glColor4f(*col)
+          glVertex3d(cx + radius * Math::cos(angle), cy + radius * Math::sin(angle), 0)
+          angle += rez
+        end
+      
+        glColor4f(*col)
+        glVertex3d(cx + radius * Math::cos(0), cy + radius * Math::sin(0), 0)
+      glEnd
     end
-    x1 = radius * Math::cos(angle)
-    y1 = radius * Math::sin(angle)
-    x2 = radius * Math::cos(radians)
-    y2 = radius * Math::sin(radians)
-    draw_triangle(x1, y1, color, x2, y2, color, cx, cy, color)
   end
 
   def draw_arc(cx, cy, radius, radians, color)
     tau = 2*Math::PI
-    rez = tau/400
+    rez = tau/40
     
     angle = 0
     while angle + rez <= radians do

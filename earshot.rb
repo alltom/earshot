@@ -16,7 +16,7 @@ CONFIG = {}
 CONFIG[:seconds_per_bit] = 0.5
 CONFIG[:transmission_radius] = 50
 CONFIG[:transceiver_radius] = 4
-CONFIG[:transceiver_count] = 10
+CONFIG[:transceiver_count] = 40
 CONFIG[:chatty_transceiver_count] = 1
 CONFIG[:width], CONFIG[:height] = 900, 600
 CONFIG[:simulation_seconds] = 20 # how long the simulations lasts (in virtual seconds)
@@ -44,6 +44,8 @@ if CONFIG[:headless]
   $shreduler.run_until(CONFIG[:simulation_seconds])
 else
   require "gosu"
+  require "gl"
+  require "glu"
   require "./animator"
   
   # construct the GUI
