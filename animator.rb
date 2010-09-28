@@ -28,8 +28,7 @@ class Animator < Gosu::Window
   end
 
   def draw_pie(cx, cy, radius, color)
-    glColor4f(color.red/255.0, color.green/255.0, color.blue/255.0, color.alpha/255.0)
-    @circle.draw(cx, cy, radius)
+    @circle.draw(cx, cy, radius, color)
   end
 
   def draw_arc(cx, cy, radius, radians, color)
@@ -113,7 +112,9 @@ class GCircle < VBO
     self.vertices = make_verts(subdivisions)
   end
   
-  def draw(x = 0, y = 0, radius = 1)
+  def draw(x = 0, y = 0, radius = 1, color = nil)
+    glColor4f(color.red/255.0, color.green/255.0, color.blue/255.0, color.alpha/255.0) if color
+    
     glPushMatrix
     
       glTranslate x, y, 0
