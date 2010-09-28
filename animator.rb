@@ -27,19 +27,11 @@ class Animator < Gosu::Window
     @sim.add_transceiver(loc)
   end
 
-  def draw_pie(cx, cy, radius, color)
-    @circle.draw(cx, cy, radius, color)
-  end
-
-  def draw_arc(cx, cy, radius, radians, color)
-    @arc.draw cx, cy, radius, radians, color
-  end
-
   def draw_circle(cx, cy, radius, color, filled=true)
     if filled
-      draw_pie(cx, cy, radius, color)
+      @circle.draw cx, cy, radius, color
     else
-      draw_arc(cx, cy, radius, Math::PI*2, color)
+      @arc.draw cx, cy, radius, radians, color
     end
   end
 
@@ -72,7 +64,7 @@ class Animator < Gosu::Window
         if t.broadcasting?
           r = CONFIG[:transmission_radius] 
           angle = t.outgoing_broadcast.progress * Math::PI*2
-          draw_arc(loc.x, loc.y, r, angle, fg)
+          @arc.draw loc.x, loc.y, r, angle, fg
         end
       end
     end
