@@ -43,8 +43,9 @@ class Animator < Gosu::Window
 
     return if @sim.nil?
     
-    # fill background. there's probably a better way to do this...
-    draw_quad(0, 0, bg, 0, CONFIG[:height], bg, CONFIG[:width], CONFIG[:height], bg, CONFIG[:width], 0, bg)
+    glClearColor bg.red/255.0, bg.green/255.0, bg.blue/255.0, bg.alpha/255.0
+    glClearDepth 0
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     
     gl do
       glEnable(GL_BLEND)
