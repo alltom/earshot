@@ -1,18 +1,43 @@
-GUI = false
-
 require "./loc"
 require "./airspace"
 require "./transceiver"
 require "./broadcast"
+require "./simulation"
+require "./uid"
+require "./message"
 
 require "rubygems"
 require "ruck"
 require "logger"
-if GUI
-  require "tk"
+require "optparse"
+
+CONFIG = {}
+
+CONFIG[:seconds_per_bit] = 0.5
+CONFIG[:transmission_radius] = 50
+CONFIG[:transceiver_radius] = 4
+CONFIG[:transceiver_count] = 10
+CONFIG[:chatty_transceiver_count] = 1
+CONFIG[:width], CONFIG[:height] = 900, 600
+CONFIG[:simulation_seconds] = 20 # how long the simulations lasts (in virtual seconds)
+CONFIG[:messages] = ["HELLO", "OK", "HELP!", "HOW ARE YOU", "GOOD MORNING", "WHAT IS YOUR QUEST?", "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
+
+# parse command-line options and GO!
+
+opts = OptionParser.new
+opts.on("--headless", "--no-gui") { CONFIG[:headless] = true }
+begin
+  opts.parse! ARGV
+rescue OptionParser::InvalidOption => e
+  $stderr.puts "#{e.reason}: #{e.args.join " "}"
+  exit
 end
 
-include Ruck
+# require Qt if using a GUI
+unless CONFIG[:headless]
+  require "gosu"
+  require "./animator"
+end
 
 LOG = Logger.new(STDOUT)
 LOG.level = Logger::INFO # DEBUG, INFO, WARN, ERROR, FATAL
@@ -21,80 +46,20 @@ LOG.level = Logger::INFO # DEBUG, INFO, WARN, ERROR, FATAL
 #       so you have to make shreds in Tk's thread
 #       (for example, with TkAfter)
 
-# note: all the commented out Tk code is for reference; having to look that stuff up sucks
-
-SECONDS_PER_BIT = 0.1
-TRANSMISSION_RADIUS = 100
-TRANSCEIVER_COUNT = 40
-CHATTY_TRANSCEIVER_COUNT = 1
-WIDTH, HEIGHT = 900, 600
-SIMULATION_SECONDS = 20 # how long the simulation lasts (in virtual seconds)
-
-MESSAGES = ["HELLO", "OK", "HELP!", "HOW ARE YOU", "GOOD MORNING", "WHAT IS YOUR QUEST?", "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
-
-class Simulation
-  def initialize
-    @airspace = Airspace.new
-    @transceivers = (1..TRANSCEIVER_COUNT).map { Transceiver.new(Loc.new((rand * WIDTH).to_i, (rand * HEIGHT).to_i), @airspace) }
-    @transceivers += (1..CHATTY_TRANSCEIVER_COUNT).map { ChattyTransceiver.new(Loc.new((rand * WIDTH).to_i, (rand * HEIGHT).to_i), @airspace) }
-    @transceivers.each { |t| @airspace << t }
-
-    @shreduler = Ruck::Shreduler.new
-    @shreduler.make_convenient
-    
-    initialize_interface
-  end
-  
-  def initialize_interface
-    if GUI
-      # TkButton.new {
-      #   text "Hello, world!"
-      #   command { puts "Hello, world!" }
-      #   pack
-      # }
-
-      # TkMessage.new {
-      #   text "* Ruby\n* Perl\n* Python"
-      #   pack
-      # }
-
-      @canvas = TkCanvas.new {
-	bg "red"
-	height HEIGHT
-	width WIDTH
-	pack
-      }
-    
-      @transceivers.each do |transceiver|
-	transceiver.range_oval = TkcOval.new(@canvas, transceiver.loc.x, transceiver.loc.y, transceiver.loc.x, transceiver.loc.y, "fill" => "red", "width" => TRANSMISSION_RADIUS * 2)
-	transceiver.progress_oval = TkcOval.new(@canvas, transceiver.loc.x, transceiver.loc.y, transceiver.loc.x, transceiver.loc.y, "fill" => "red", "width" => 2)
-      end
-    end
-  end
-  
-  def start
-    @airspace.start
-    @transceivers.each { |t| t.start }
-  end
-end
-
-# x1, y1, x2, y2 = 50, 50, 100, 100
-# TkcOval.new(c, x1.to_i, y1.to_i, x1.to_i + 4, y1.to_i + 4, 'fill'=>'red')
-# TkcLine.new(c, x1.to_i, y1.to_i, x2.to_i, y2.to_i, 'width'=>2 )
-# TkcRectangle.new(c, x1.to_i, y1.to_i, x2.to_i, y2.to_i, 'width'=>2 )
-# $o = TkcOval.new(c, x1.to_i, y1.to_i, x2.to_i, y2.to_i, 'width'=>2)
-
 @simulation = Simulation.new
 
-if GUI
-  TkAfter.new(100, -1, proc { $shreduler.run_until(Time.now - $start_time) }).start
-  TkAfter.new(0, 1, proc { @simulation.start }).start
+if CONFIG[:headless]
+  @simulation.start
+  $shreduler.run_until(CONFIG[:simulation_seconds])
+else
+  # construct the GUI
+  anim = Animator.new
+
+  # anim will render @simulation, and also give it time to run
+  anim.sim = @simulation
 
   $start_time = Time.now
-  Tk.mainloop
-else
   @simulation.start
-  $shreduler.run_until(SIMULATION_SECONDS)
+
+  anim.show
 end
-
-
