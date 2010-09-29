@@ -93,7 +93,7 @@ class Transceiver
       new_loc = Loc.new((rand * CONFIG[:width]).to_i, (rand * CONFIG[:height]).to_i) 
       speed = rand*(MAX_SPEED-MIN_SPEED) + MIN_SPEED
       move(new_loc, speed)
-      LOG.info "#{self} started moving to #{new_loc} with speed #{speed}"
+      #LOG.info "#{self} started moving to #{new_loc} with speed #{speed}"
     end
   end
   
