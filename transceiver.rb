@@ -103,7 +103,12 @@ class Transceiver
   end
   
   def received_broadcast(broadcast)
-    LOG.info "#{self} received #{broadcast}"
+    if broadcast.message.target_uid == @uid
+      LOG.info "#{self} received #{broadcast.message} addressed to it! Hooray!"
+    else
+      LOG.info "#{self} received #{broadcast}"
+    end
+      
     @stored_messages << broadcast.message unless @stored_messages.include? broadcast.message
   end
   
@@ -128,6 +133,7 @@ class ChattyTransceiver < Transceiver
         target_uid = @friend_uids[rand @friend_uids.length]
         body = CONFIG[:messages][rand CONFIG[:messages].length]
         msg = Message.new(@uid, target_uid, body)
+        @stored_messages << msg
         broadcast = broadcast_message(msg)
         Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
       end
