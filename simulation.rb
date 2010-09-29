@@ -1,3 +1,9 @@
+class Array
+  def sample
+    self[rand self.length]
+  end
+end
+
 
 class Simulation
   attr_reader :transceivers
@@ -31,8 +37,8 @@ class Simulation
     spork_loop do
       Ruck::Shred.yield(rand * 10)
       
-      a = @transceivers[rand @transceivers.length]
-      b = @transceivers[rand @transceivers.length]
+      a = @transceivers.sample
+      b = (@transceivers - [a]).sample
       a.meet(b)
     end
 
