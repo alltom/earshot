@@ -4,7 +4,6 @@ class Simulation
 
   def initialize
     @airspace = Airspace.new
-
     @transceivers = []
 
     @shreduler = Ruck::Shreduler.new
@@ -13,10 +12,11 @@ class Simulation
 
   def add_transceiver(loc=nil)
     loc ||= Loc.new((rand * CONFIG[:width]).to_i, (rand * CONFIG[:height]).to_i)
-    transceiver = Transceiver.new(loc, @airspace)
+    transceiver = ChattyTransceiver.new(loc, @airspace)
     @transceivers << transceiver
     @airspace << transceiver
     transceiver.start
+    transceiver
   end
 
   def advance

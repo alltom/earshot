@@ -6,6 +6,7 @@ class Transceiver
   attr_accessor :outgoing_broadcast
   attr_accessor :range_oval
   attr_accessor :progress_oval
+  attr_reader   :uid
   
   def self.uid
     (@uuid_generator ||= UIDGenerator.new("AGENT")).next
@@ -19,6 +20,11 @@ class Transceiver
     @move_start = nil # the time at which the agent started moving
     @airspace = airspace
     @stored_messages = []
+    @friend_uids = []
+  end
+
+  def meet(other)
+    @friend_uids << other.uid
   end
 
   def loc
@@ -116,8 +122,11 @@ class ChattyTransceiver < Transceiver
     spork do
       Ruck::Shred.yield(rand * 3)
       
-      if @outgoing_broadcast.nil?
-        broadcast = broadcast_message(Message.new(CONFIG[:messages][rand CONFIG[:messages].length]))
+      if @outgoing_broadcast.nil? and !@friend_uids.empty?
+        target_uid = @friend_uids[rand @friend_uids.length]
+        body = CONFIG[:messages][rand CONFIG[:messages].length]
+        msg = Message.new(@uid, target_uid, body)
+        broadcast = broadcast_message(msg)
         Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
       end
     end

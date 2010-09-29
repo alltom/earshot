@@ -1,14 +1,18 @@
 
 class Message
   attr_reader :uid
+  attr_reader :sender_uid
+  attr_reader :target_uid
   attr_reader :text
   
   def self.uid
     (@uuid_generator ||= UIDGenerator.new("AGENT")).next
   end
   
-  def initialize text
+  def initialize sender_uid, target_uid, text
     @uid = Message.uid
+    @sender_uid = sender_uid
+    @target_uid = target_uid
     @text = text
   end
   
@@ -17,6 +21,6 @@ class Message
   end
   
   def to_s
-    "<Message:#{@uid}, #{@text}"
+    "<Message:#{@uid}, #{@sender_uid} => #{@target_uid}, #{@text}"
   end
 end

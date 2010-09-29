@@ -33,7 +33,9 @@ class Loader
   end 
 
   def agent(x, y)
-    @simulation.add_transceiver(Loc.new(x, y))
+    l = Loc.new(x, y)
+    a = @simulation.add_transceiver(l)
+    a
   end
 
   def self.load filename
