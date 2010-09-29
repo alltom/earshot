@@ -1,3 +1,10 @@
 size 500, 500
+seconds_per_bit 0.5
+transceiver_radius 4
+transmission_radius 50
+messages ["HELLO", "OK", "HELP!", "HOW ARE YOU", "GOOD MORNING", "WHAT IS YOUR QUEST?", "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
 
-node 40, 100
+agent 40, 400
+agent 90, 120
+agent 10, 240
+agent 170, 360
