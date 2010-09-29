@@ -26,5 +26,15 @@ class Simulation
   def start
     @airspace.start
     @transceivers.each { |t| t.start }
+
+    # every so often, introduce one agent to another
+    spork_loop do
+      Ruck::Shred.yield(rand * 10)
+      
+      a = @transceivers[rand @transceivers.length]
+      b = @transceivers[rand @transceivers.length]
+      a.meet(b)
+    end
+
   end
 end

@@ -24,7 +24,9 @@ class Transceiver
   end
 
   def meet(other)
+    return if @friend_uids.include? other.uid
     @friend_uids << other.uid
+    LOG.info "#{self} met #{other}"
   end
 
   def loc
