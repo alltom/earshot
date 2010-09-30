@@ -25,7 +25,7 @@ rescue OptionParser::InvalidOption => e
   exit
 end
 
-# require Qt if using a GUI
+# require gosu if using a GUI
 unless CONFIG[:headless]
   require "gosu"
   require "./animator"
