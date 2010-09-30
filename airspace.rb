@@ -1,4 +1,3 @@
-
 class Airspace
   def initialize
     @broadcasts = []
