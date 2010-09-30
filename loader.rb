@@ -1,4 +1,3 @@
-require "./airspace"
 require "./simulation"
 require "./transceiver"
 require "./loc"
