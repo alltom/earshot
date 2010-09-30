@@ -6,6 +6,7 @@ require "./simulation"
 require "./uid"
 require "./message"
 require "./loader"
+require "./earlog"
 
 require "rubygems"
 require "ruck"
@@ -32,7 +33,8 @@ unless CONFIG[:headless]
 end
 
 LOG = Logger.new(STDOUT)
-LOG.level = Logger::INFO # DEBUG, INFO, WARN, ERROR, FATAL
+LOG.level = Logger::ERROR # DEBUG, INFO, WARN, ERROR, FATAL
+EARLOG = EarLog.new(STDOUT)
 
 @simulation = Loader::load('scenario.scn')
 

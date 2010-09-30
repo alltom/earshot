@@ -94,6 +94,7 @@ class Transceiver
       speed = rand*(MAX_SPEED-MIN_SPEED) + MIN_SPEED
       move(new_loc, speed)
       #LOG.info "#{self} started moving to #{new_loc} with speed #{speed}"
+      EARLOG::move(self, new_loc.x, new_loc.y, speed)
     end
   end
   
@@ -105,6 +106,7 @@ class Transceiver
   def received_broadcast(broadcast)
     if broadcast.message.target_uid == @uid
       LOG.info "#{self} received #{broadcast.message} addressed to it! Hooray!"
+      EARLOG::recv(self, broadcast.message)
     else
       LOG.info "#{self} received #{broadcast}"
     end
