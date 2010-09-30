@@ -1,5 +1,6 @@
 class Loader
   attr_reader :simulation
+
   def initialize
     @simulation = Simulation.new
   end
