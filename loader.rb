@@ -1,9 +1,3 @@
-require "./simulation"
-require "./transceiver"
-require "./loc"
-require "./uid"
-require "ruck"
-
 class Loader
   attr_reader :simulation
   def initialize
