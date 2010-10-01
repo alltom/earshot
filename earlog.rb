@@ -14,8 +14,4 @@ class EarLog
   def move(agent, xo, yo, speed)
     @outfile.puts "#{$shreduler.now}\t#{agent.uid}\tmove\t#{xo}\t#{yo}\t#{speed}"
   end
-
-  def bump()
-    @outfile.puts "#{$shreduler.now}\tbump"
-  end
 end
