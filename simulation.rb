@@ -41,6 +41,5 @@ class Simulation
       b = (@transceivers - [a]).sample
       a.meet(b)
     end
-
   end
 end

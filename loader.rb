@@ -1,12 +1,6 @@
-require "./airspace"
-require "./simulation"
-require "./transceiver"
-require "./loc"
-require "./uid"
-require "ruck"
-
 class Loader
   attr_reader :simulation
+
   def initialize
     @simulation = Simulation.new
   end
@@ -33,9 +27,7 @@ class Loader
   end 
 
   def agent(x, y)
-    l = Loc.new(x, y)
-    a = @simulation.add_transceiver(l)
-    a
+    return @simulation.add_transceiver(Loc.new(x, y))
   end
 
   def self.load filename

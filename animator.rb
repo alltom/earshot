@@ -1,6 +1,3 @@
-
-QT_FULL_CIRCLE = 360 * 16  # Qt measures angles in 1/16ths of a degree
-
 class Animator < Gosu::Window
   attr_accessor :sim
 
@@ -19,8 +16,7 @@ class Animator < Gosu::Window
 
   def button_up(id)
     return unless id == Gosu::MsLeft
-    loc = Loc.new(mouse_x, mouse_y)
-    @sim.add_transceiver(loc)
+    @sim.add_transceiver(Loc.new(mouse_x, mouse_y))
   end
 
   def draw_pie(cx, cy, radius, radians, color)
