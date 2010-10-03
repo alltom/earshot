@@ -21,6 +21,7 @@ CONFIG[:chatty_transceiver_count] = 1
 CONFIG[:width], CONFIG[:height] = 900, 600
 CONFIG[:simulation_seconds] = 20 # how long the simulations lasts (in virtual seconds)
 CONFIG[:messages] = ["HELLO", "OK", "HELP!", "HOW ARE YOU", "GOOD MORNING", "WHAT IS YOUR QUEST?", "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
+CONFIG[:slow_gl] = true # set to true on systems without OpenGL 1.5
 
 # parse command-line options and GO!
 

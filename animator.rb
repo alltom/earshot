@@ -55,11 +55,11 @@ class Animator < Gosu::Window
 
     return if @sim.nil?
     
-    glClearColor *bg.to_gl
-    glClearDepth 0
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    
     gl do
+      glClearColor *bg.to_gl
+      glClearDepth 0
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+      
       glEnable(GL_BLEND)
       
       @sim.transceivers.each do |t|
@@ -115,47 +115,87 @@ class VBO
     end
 end
 
-# VBO-backed circle mesh with the given number of subdivisions.
-class GCircle < VBO
-  def initialize(subdivisions = 40)
-    super()
-    self.vertices = make_verts(subdivisions)
-  end
+if CONFIG[:slow_gl]
   
-  def draw(x = 0, y = 0, radius = 1, color = nil)
-    glColor4f(*color.to_gl) if color
+  # draws a circle in immediate mode with the given number of subdivisions.
+  class GCircle
+    def initialize(subdivisions = 40)
+      @subdivisions = subdivisions
+    end
     
-    glPushMatrix
-    
-      glTranslate x, y, 0
-      glScale radius, radius, 0
-      
-      bind_buffer
-      glVertexPointer 3, GL_FLOAT, 0, 0
-      glEnableClientState GL_VERTEX_ARRAY
-      glDrawArrays GL_TRIANGLE_FAN, 0, self.vertices.length
-      glDisableClientState GL_VERTEX_ARRAY
-      
-    glPopMatrix
-  end
-  
-  protected
-    def make_verts(subdivisions)
-      rez = Math::Tau/subdivisions
-      
-      verts = []
-      verts << [0, 0, 0]
-      
-      angle = 0
-      while angle + rez <= Math::Tau do
-        verts << [Math::cos(angle), Math::sin(angle), 0]
-        angle += rez
+    def draw(x = 0, y = 0, radius = 1, color = nil)
+      rez = Math::Tau / @subdivisions
+
+      if color.nil?
+        col = [1, 1, 1, 1]
+      else
+        col = color.to_gl
       end
       
-      verts << [Math::cos(0), Math::sin(0), 0]
-      
-      verts
+      col = [1, 0, 0, 0.5]
+
+      glBegin(GL_TRIANGLE_FAN)
+        glColor4f(*col)
+        glVertex2f(x, y) # center
+        
+        angle = 0
+        while angle + rez <= Math::Tau do
+          glColor4f(*col)
+          glVertex2f(x + radius * Math::cos(angle), y + radius * Math::sin(angle))
+          angle += rez
+        end
+        
+        glColor4f(*col)
+        glVertex2f(x + radius * Math::cos(0), y + radius * Math::sin(0))
+      glEnd
     end
+  end
+  
+else
+  
+  # VBO-backed circle mesh with the given number of subdivisions.
+  class GCircle < VBO
+    def initialize(subdivisions = 40)
+      super()
+      self.vertices = make_verts(subdivisions)
+    end
+  
+    def draw(x = 0, y = 0, radius = 1, color = nil)
+      glColor4f(*color.to_gl) if color
+    
+      glPushMatrix
+    
+        glTranslate x, y, 0
+        glScale radius, radius, 0
+      
+        bind_buffer
+        glVertexPointer 3, GL_FLOAT, 0, 0
+        glEnableClientState GL_VERTEX_ARRAY
+        glDrawArrays GL_TRIANGLE_FAN, 0, self.vertices.length
+        glDisableClientState GL_VERTEX_ARRAY
+      
+      glPopMatrix
+    end
+  
+    protected
+      def make_verts(subdivisions)
+        rez = Math::Tau/subdivisions
+      
+        verts = []
+        verts << [0, 0, 0]
+      
+        angle = 0
+        while angle + rez <= Math::Tau do
+          verts << [Math::cos(angle), Math::sin(angle), 0]
+          angle += rez
+        end
+      
+        verts << [Math::cos(0), Math::sin(0), 0]
+      
+        verts
+      end
+  end
+  
 end
 
 # renders OpenGL immediate mode arcs using LINE_LOOP.
