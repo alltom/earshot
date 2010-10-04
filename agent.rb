@@ -1,7 +1,7 @@
 
 MIN_SPEED, MAX_SPEED = 5, 20
 
-class Transceiver
+class Agent
   attr_accessor :airspace
   attr_accessor :outgoing_broadcast
   attr_accessor :range_oval
@@ -13,7 +13,7 @@ class Transceiver
   end
   
   def initialize(loc, airspace)
-    @uid = Transceiver.uid
+    @uid = Agent.uid
     @old_loc = loc
     @new_loc = nil    # the agent's new destination
     @speed = nil      # the agent's speed
@@ -39,7 +39,7 @@ class Transceiver
     time_since_move = $shreduler.now - @move_start
 
     if time_since_move > time_to_dest
-      # self already arrived
+      # this agent already arrived
       @old_loc = @new_loc
       @new_loc = nil
       @speed = nil
@@ -47,7 +47,7 @@ class Transceiver
       return @old_loc
     end
 
-    # self is moving, so calculate its position
+    # this agent is moving, so calculate its position
     xv = (@new_loc.x - @old_loc.x)/time_to_dest
     yv = (@new_loc.y - @old_loc.y)/time_to_dest
     cur_x = @old_loc.x + xv*time_since_move
@@ -119,11 +119,11 @@ class Transceiver
   end
   
   def to_s
-    "<Transceiver:#{@uid} @ #{loc}>"
+    "<Agent:#{@uid} @ #{loc}>"
   end
 end
 
-class ChattyTransceiver < Transceiver
+class ChattyAgent < Agent
   def start
     super
     

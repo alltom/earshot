@@ -17,7 +17,7 @@ class Airspace
   
   def start
     spork_loop(CONFIG[:seconds_per_bit]) do
-      # ensure that no transceiver is receiving two broadcasts at once
+      # ensure that no agent is receiving two broadcasts at once
       all_receivers = []
       collision_receivers = []
       @broadcasts.each do |broadcast|

@@ -34,7 +34,7 @@ class Animator < Gosu::Window
 
   def button_up(id)
     return unless id == Gosu::MsLeft
-    @sim.add_transceiver(Loc.new(mouse_x, mouse_y))
+    @sim.add_agent(Loc.new(mouse_x, mouse_y))
   end
 
   def draw_circle(cx, cy, radius, color, filled=true)
@@ -60,14 +60,14 @@ class Animator < Gosu::Window
       
       glEnable(GL_BLEND)
       
-      @sim.transceivers.each do |t|
+      @sim.agents.each do |t|
         loc = t.loc
         
-        # visualize transceiver
-        r = CONFIG[:transceiver_radius]
+        # visualize agent
+        r = CONFIG[:agent_radius]
         draw_circle(loc.x, loc.y, r, agent)
         
-        # visualize transceiver's range
+        # visualize agent's range
         r = CONFIG[:transmission_radius] 
         draw_circle(loc.x, loc.y, r, range)
         

@@ -1,6 +1,6 @@
 size 500, 500
 seconds_per_bit 0.5
-transceiver_radius 4
+agent_radius 4
 transmission_radius 50
 messages ["HELLO", "OK", "HELP!", "HOW ARE YOU", "GOOD MORNING", "WHAT IS YOUR QUEST?", "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
 

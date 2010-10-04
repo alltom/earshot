@@ -14,8 +14,8 @@ class Loader
     CONFIG[:seconds_per_bit] = spb
   end
 
-  def transceiver_radius(tr)
-    CONFIG[:transceiver_radius] = tr
+  def agent_radius(tr)
+    CONFIG[:agent_radius] = tr
   end
 
   def transmission_radius(tr)
@@ -27,7 +27,7 @@ class Loader
   end 
 
   def agent(x, y)
-    return @simulation.add_transceiver(Loc.new(x, y))
+    return @simulation.add_agent(Loc.new(x, y))
   end
 
   def self.load filename
