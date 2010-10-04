@@ -15,12 +15,11 @@ require "optparse"
 
 CONFIG = {}
 
-CONFIG[:slow_gl] = true # set to true on systems without OpenGL 1.5
-
 # parse command-line options and GO!
 
 opts = OptionParser.new
 opts.on("--headless", "--no-gui") { CONFIG[:headless] = true }
+opts.on("--slow-gl") { CONFIG[:slow_gl] = true } # set to true on systems without OpenGL 1.5
 begin
   opts.parse! ARGV
 rescue OptionParser::InvalidOption => e
