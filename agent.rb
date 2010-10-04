@@ -91,7 +91,7 @@ class Agent
       Ruck::Shred.yield(rand * 20)
 
       new_loc = Loc.new((rand * CONFIG[:width_m]).to_i, (rand * CONFIG[:height_m]).to_i) 
-      speed = rand*(MAX_SPEED-MIN_SPEED) + MIN_SPEED
+      speed = CONFIG[:speed_mps]
       move(new_loc, speed)
       #LOG.info "#{self} started moving to #{new_loc} with speed #{speed}"
       EARLOG::move(self, new_loc.x, new_loc.y, speed)

@@ -30,6 +30,10 @@ class Loader
     return @simulation.add_agent(Loc.new(x, y))
   end
 
+  def speed(mps)
+    CONFIG[:speed_mps] = mps
+  end
+
   def self.load filename
     dsl = new
     dsl.instance_eval(File.read(filename), filename)

@@ -1,4 +1,4 @@
-size 5000, 5000         # in meters
+size 500, 500         # in meters
 seconds_per_bit 0.5
 agent_radius 1          # in meters
 transmission_radius 50  # in meters
@@ -10,6 +10,7 @@ messages ["HELLO",
           "WHAT IS YOUR QUEST?",
           "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
 
+speed 80.0/60  # in m/s (http://en.wikipedia.org/wiki/Walking#Walking_speed)
 a1 = agent 40, 400
 a2 = agent 90, 120
 a1.meet a2
