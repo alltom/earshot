@@ -26,7 +26,7 @@ class Airspace
         end
         all_receivers += broadcast.receivers
       end
-      
+
       collision_receivers.each do |r|
         @broadcasts.each do |b|
           b.failed_receivers << r
@@ -35,6 +35,14 @@ class Airspace
         end
       end
       
+      # cull any broadcast receivers who are no longer in range
+      @broadcasts.each do |b|
+        goners = b.receivers.select { |r| r.loc.dist(b.loc) > b.range }
+        b.failed_receivers << goners
+        b.receivers -= [goners]
+        goners.each { |g| LOG.info "Broadcast #{b} to #{g} failed due to range" }
+      end
+
       @broadcasts.each do |broadcast|
         broadcast.bits_left -= 1
         if broadcast.bits_left == 0
