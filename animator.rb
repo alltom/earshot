@@ -34,7 +34,7 @@ class Animator < Gosu::Window
 
   def button_up(id)
     return unless id == Gosu::MsLeft
-    x_m, y_m = screen2world(mouse_x, mouse_y)
+    x_px, y_px = screen2world(mouse_x, mouse_y)
     @sim.add_agent(Loc.new(x_px, y_px))
   end
 
@@ -95,7 +95,6 @@ class Animator < Gosu::Window
           angle = t.outgoing_broadcast.progress * Math::Tau
           @arc.draw loc.x, loc.y, r, angle, fg
         end
-      end
 
       # return to screen coordinates
       glPopMatrix
