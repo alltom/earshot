@@ -129,8 +129,6 @@ if CONFIG[:slow_gl]
       else
         col = color.to_gl
       end
-      
-      col = [1, 0, 0, 0.5]
 
       glBegin(GL_TRIANGLE_FAN)
         glColor4f(*col)
