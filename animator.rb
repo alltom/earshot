@@ -60,7 +60,8 @@ class Animator < Gosu::Window
 
   def draw
     fg = Gosu::Color.new(158, 240, 216)
-    range = Gosu::Color.new(60, 158, 240, 216)
+    range = Gosu::Color.new(20, 158, 240, 216)
+    error = Gosu::Color.new(10, 255, 60, 32)
     bg = Gosu::Color.new(40, 40, 40)
     agent = Gosu::Color.new(160, 240, 234)
 
@@ -106,6 +107,13 @@ class Animator < Gosu::Window
               glVertex2f(rxer.loc.x, rxer.loc.y)
             glEnd
           end
+        end
+      end
+
+      # visualize failed broadcasts (due to collisions and moving out-of-range)
+      @sim.airspace.broadcasts.each do |b|
+        b.failed_receivers.each do |r|
+          draw_circle(r.loc.x, r.loc.y, CONFIG[:transmission_radius_m], error)
         end
       end
 

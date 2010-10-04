@@ -1,4 +1,6 @@
 class Airspace
+  attr_reader :broadcasts
+
   def initialize
     @broadcasts = []
     @receivers = []
@@ -38,7 +40,8 @@ class Airspace
       # cull any broadcast receivers who are no longer in range
       @broadcasts.each do |b|
         goners = b.receivers.select { |r| r.loc.dist(b.loc) > b.range }
-        b.failed_receivers << goners
+        next if goners.empty?
+        b.failed_receivers += goners
         b.receivers -= [goners]
         goners.each { |g| LOG.info "Broadcast #{b} to #{g} failed due to range" }
       end

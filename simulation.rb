@@ -7,6 +7,7 @@ end
 
 class Simulation
   attr_reader :agents
+  attr_reader :airspace
 
   def initialize
     @airspace = Airspace.new
