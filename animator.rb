@@ -17,7 +17,9 @@ class Animator < Gosu::Window
   attr_accessor :sim
 
   def initialize
-    super(CONFIG[:width_px], CONFIG[:height_px], false)
+    w = CONFIG[:width_px] + CONFIG[:left_margin_px] + CONFIG[:right_margin_px]
+    h = CONFIG[:height_px] + CONFIG[:top_margin_px] + CONFIG[:bottom_margin_px]
+    super(w, h, false)
     self.caption = "earshot"
     
     @circle = GCircle.new(40)
@@ -35,6 +37,15 @@ class Animator < Gosu::Window
   def button_up(id)
     return unless id == Gosu::MsLeft
     x_px, y_px = screen2world(mouse_x, mouse_y)
+
+    # shift click position to account for margins
+    x_px -= CONFIG[:left_margin_px]
+    y_px -= CONFIG[:top_margin_px]
+
+    # ignore clicks outside of the simulation area
+    return unless (0...CONFIG[:width_px]) === x_px \
+              and (0...CONFIG[:height_px]) === y_px
+
     @sim.add_agent(Loc.new(x_px, y_px))
   end
 
@@ -75,6 +86,10 @@ class Animator < Gosu::Window
       
       glEnable(GL_BLEND)
 
+      # translate drawing to leave a margin around the edges
+      glPushMatrix
+      glTranslate(CONFIG[:left_margin_px], CONFIG[:top_margin_px], 0)
+
       # move into world coordinate system
       glPushMatrix
       w_scale, h_scale = world2screen(1.0, 1.0)
@@ -102,9 +117,6 @@ class Animator < Gosu::Window
         y_m += CONFIG[:grid_m]
       end
 
-
-        
-      
       @sim.agents.each do |t|
         loc = t.loc
         
@@ -144,6 +156,9 @@ class Animator < Gosu::Window
       end
 
       # return to screen coordinates
+      glPopMatrix
+
+      # untranslate
       glPopMatrix
     end
   end
