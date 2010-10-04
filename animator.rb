@@ -17,7 +17,7 @@ class Animator < Gosu::Window
   attr_accessor :sim
 
   def initialize
-    super(CONFIG[:width], CONFIG[:height], false)
+    super(CONFIG[:width_px], CONFIG[:height_px], false)
     self.caption = "earshot"
     
     @circle = GCircle.new(40)
@@ -34,7 +34,20 @@ class Animator < Gosu::Window
 
   def button_up(id)
     return unless id == Gosu::MsLeft
-    @sim.add_agent(Loc.new(mouse_x, mouse_y))
+    x_px, y_px = screen2world(mouse_x, mouse_y)
+    @sim.add_agent(Loc.new(x_px, y_px))
+  end
+
+  def world2screen(x_m, y_m)
+    x_px_per_m = 1.0*CONFIG[:width_px]/CONFIG[:width_m] 
+    y_px_per_m = 1.0*CONFIG[:height_px]/CONFIG[:height_m]
+    [x_m*x_px_per_m, y_m*y_px_per_m]
+  end
+
+  def screen2world(x_px, y_px)
+    x_m_per_px = 1.0*CONFIG[:width_m]/CONFIG[:width_px] 
+    y_m_per_px = 1.0*CONFIG[:height_m]/CONFIG[:height_px]
+    [x_px*x_m_per_px, y_px*y_m_per_px]
   end
 
   def draw_circle(cx, cy, radius, color, filled=true)
@@ -59,25 +72,33 @@ class Animator < Gosu::Window
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
       
       glEnable(GL_BLEND)
+
+      # move into world coordinate system
+      glPushMatrix
+      w_scale, h_scale = world2screen(1.0, 1.0)
+      glScale(w_scale, h_scale, 1)
       
       @sim.agents.each do |t|
         loc = t.loc
         
         # visualize agent
-        r = CONFIG[:agent_radius]
+        r = CONFIG[:agent_radius_m]
         draw_circle(loc.x, loc.y, r, agent)
         
         # visualize agent's range
-        r = CONFIG[:transmission_radius] 
+        r = CONFIG[:transmission_radius_m] 
         draw_circle(loc.x, loc.y, r, range)
         
         # visualize broadcast progress
         if t.broadcasting?
-          r = CONFIG[:transmission_radius] 
+          r = CONFIG[:transmission_radius_m] 
           angle = t.outgoing_broadcast.progress * Math::Tau
           @arc.draw loc.x, loc.y, r, angle, fg
         end
       end
+
+      # return to screen coordinates
+      glPopMatrix
     end
   end
 end

@@ -67,7 +67,7 @@ class Agent
   
   def broadcast_message(message)
     if @outgoing_broadcast.nil?
-      broadcast = Broadcast.new(self, loc, CONFIG[:transmission_radius], message)
+      broadcast = Broadcast.new(self, loc, CONFIG[:transmission_radius_m], message)
       @airspace.send_broadcast(broadcast)
       @outgoing_broadcast = broadcast
     else
@@ -90,7 +90,7 @@ class Agent
     spork_loop do
       Ruck::Shred.yield(rand * 20)
 
-      new_loc = Loc.new((rand * CONFIG[:width]).to_i, (rand * CONFIG[:height]).to_i) 
+      new_loc = Loc.new((rand * CONFIG[:width_m]).to_i, (rand * CONFIG[:height_m]).to_i) 
       speed = rand*(MAX_SPEED-MIN_SPEED) + MIN_SPEED
       move(new_loc, speed)
       #LOG.info "#{self} started moving to #{new_loc} with speed #{speed}"

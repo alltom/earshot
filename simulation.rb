@@ -17,7 +17,7 @@ class Simulation
   end
 
   def add_agent(loc=nil)
-    loc ||= Loc.new((rand * CONFIG[:width]).to_i, (rand * CONFIG[:height]).to_i)
+    loc ||= Loc.new((rand * CONFIG[:width_m]).to_i, (rand * CONFIG[:height_m]).to_i)
     agent = ChattyAgent.new(loc, @airspace)
     @agents << agent
     @airspace << agent

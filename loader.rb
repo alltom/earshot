@@ -5,21 +5,21 @@ class Loader
     @simulation = Simulation.new
   end
     
-  def size(width, height)
-    CONFIG[:width] = width
-    CONFIG[:height] = height
+  def size(width_m, height_m)
+    CONFIG[:width_m] = width_m
+    CONFIG[:height_m] = height_m
   end
 
   def seconds_per_bit(spb)
     CONFIG[:seconds_per_bit] = spb
   end
 
-  def agent_radius(tr)
-    CONFIG[:agent_radius] = tr
+  def agent_radius(ar)
+    CONFIG[:agent_radius_m] = ar
   end
 
   def transmission_radius(tr)
-    CONFIG[:transmission_radius] = tr
+    CONFIG[:transmission_radius_m] = tr
   end
 
   def messages(ms)

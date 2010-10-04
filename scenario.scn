@@ -1,8 +1,14 @@
-size 500, 500
+size 5000, 5000         # in meters
 seconds_per_bit 0.5
-agent_radius 4
-transmission_radius 50
-messages ["HELLO", "OK", "HELP!", "HOW ARE YOU", "GOOD MORNING", "WHAT IS YOUR QUEST?", "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
+agent_radius 1          # in meters
+transmission_radius 50  # in meters
+messages ["HELLO",
+          "OK",
+          "HELP!",
+          "HOW ARE YOU",
+          "GOOD MORNING",
+          "WHAT IS YOUR QUEST?",
+          "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
 
 a1 = agent 40, 400
 a2 = agent 90, 120

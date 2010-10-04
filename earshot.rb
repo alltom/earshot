@@ -27,6 +27,8 @@ rescue OptionParser::InvalidOption => e
   exit
 end
 
+CONFIG[:width_px] = 500
+CONFIG[:height_px] = 500
 
 LOG = Logger.new(STDOUT)
 LOG.level = Logger::ERROR # DEBUG, INFO, WARN, ERROR, FATAL
