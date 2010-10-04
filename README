@@ -1,4 +1,5 @@
 
   $ gem install ruck
   $ gem install gosu
+  $ gem install ruby-opengl
   $ ruby earshot.rb
