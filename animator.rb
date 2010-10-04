@@ -75,6 +75,7 @@ class Animator < Gosu::Window
     error = Gosu::Color.new(10, 255, 60, 32)
     bg = Gosu::Color.new(40, 40, 40)
     grid = Gosu::Color.new(20, 100, 100, 100)
+    text = Gosu::Color.new(200, 100, 100, 100)
     agent = Gosu::Color.new(160, 240, 234)
 
     return if @sim.nil?
@@ -85,6 +86,15 @@ class Animator < Gosu::Window
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
       
       glEnable(GL_BLEND)
+
+      # draw dimensions for grid
+      font_height = 10
+      lm = CONFIG[:left_margin_px]
+      tm = CONFIG[:top_margin_px]
+      font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 10)  # from http://www.dafont.com/theme.php?cat=503
+      font.draw("0", lm-10, tm-10, 0, 1, 1, text)
+      font.draw("#{CONFIG[:width_m]}", lm+CONFIG[:width_px], tm-10, 0, 1, 1, text)
+      font.draw("#{CONFIG[:height_m]}", lm-font_height*3, tm+CONFIG[:height_px] - 0.5*font_height, 0, 1, 1, text)
 
       # translate drawing to leave a margin around the edges
       glPushMatrix

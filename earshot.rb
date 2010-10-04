@@ -29,9 +29,9 @@ end
 
 CONFIG[:width_px] = 500
 CONFIG[:height_px] = 500
-CONFIG[:left_margin_px] = 50
-CONFIG[:top_margin_px] = 50
-CONFIG[:right_margin_px] = 20
+CONFIG[:left_margin_px] = 30
+CONFIG[:top_margin_px] = 30
+CONFIG[:right_margin_px] = 30
 CONFIG[:bottom_margin_px] = 20
 
 LOG = Logger.new(STDOUT)
