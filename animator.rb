@@ -96,6 +96,19 @@ class Animator < Gosu::Window
           @arc.draw loc.x, loc.y, r, angle, fg
         end
 
+        # visualize links between tx-ing agent and rx-ing agents
+        if t.broadcasting?
+          t.outgoing_broadcast.receivers.each do |rxer|
+            glColor4f(*fg.to_gl)
+            glLineWidth 2
+            glBegin(GL_LINES)
+              glVertex2f(t.loc.x, t.loc.y)
+              glVertex2f(rxer.loc.x, rxer.loc.y)
+            glEnd
+          end
+        end
+      end
+
       # return to screen coordinates
       glPopMatrix
     end
