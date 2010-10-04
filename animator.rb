@@ -29,7 +29,7 @@ class Animator < Gosu::Window
   end
 
   def needs_cursor?
-    true
+    true # this makes the mouse cursor visible inside the window
   end
 
   def button_up(id)
