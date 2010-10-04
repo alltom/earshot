@@ -63,6 +63,7 @@ class Animator < Gosu::Window
     range = Gosu::Color.new(20, 158, 240, 216)
     error = Gosu::Color.new(10, 255, 60, 32)
     bg = Gosu::Color.new(40, 40, 40)
+    grid = Gosu::Color.new(20, 100, 100, 100)
     agent = Gosu::Color.new(160, 240, 234)
 
     return if @sim.nil?
@@ -78,6 +79,31 @@ class Animator < Gosu::Window
       glPushMatrix
       w_scale, h_scale = world2screen(1.0, 1.0)
       glScale(w_scale, h_scale, 1)
+
+      # draw grid
+      x_m, y_m = 0, 0
+      while x_m <= CONFIG[:width_m]
+        glColor4f(*grid.to_gl)
+        glLineWidth 2
+        glBegin(GL_LINES)
+          glVertex2f(x_m, 0)
+          glVertex2f(x_m, CONFIG[:height_m])
+        glEnd
+        x_m += CONFIG[:grid_m]
+      end
+
+      while y_m <= CONFIG[:height_m]
+        glColor4f(*grid.to_gl)
+        glLineWidth 2
+        glBegin(GL_LINES)
+          glVertex2f(0, y_m)
+          glVertex2f(CONFIG[:width_m], y_m)
+        glEnd
+        y_m += CONFIG[:grid_m]
+      end
+
+
+        
       
       @sim.agents.each do |t|
         loc = t.loc

@@ -34,6 +34,10 @@ class Loader
     CONFIG[:speed_mps] = mps
   end
 
+  def grid(grid_m)
+    CONFIG[:grid_m] = grid_m
+  end
+
   def self.load filename
     dsl = new
     dsl.instance_eval(File.read(filename), filename)

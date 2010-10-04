@@ -1,4 +1,5 @@
-size 500, 500         # in meters
+size 500, 500           # in meters
+grid 40                 # grid square side-length, in meters
 seconds_per_bit 0.5
 agent_radius 1          # in meters
 transmission_radius 50  # in meters
