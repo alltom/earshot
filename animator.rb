@@ -1,9 +1,27 @@
+include Gl
+include Glu
+
+module Gosu
+  class Color
+    def to_gl
+      [red/255.0, green/255.0, blue/255.0, alpha/255.0]
+    end
+  end
+end
+
+module Math
+  Tau = 2 * PI
+end
+
 class Animator < Gosu::Window
   attr_accessor :sim
 
   def initialize
     super(CONFIG[:width], CONFIG[:height], false)
-    self.caption = 'earshot'
+    self.caption = "earshot"
+    
+    @circle = GCircle.new(40)
+    @arc = GArc.new(40)
   end
 
   def update
@@ -19,54 +37,11 @@ class Animator < Gosu::Window
     @sim.add_transceiver(Loc.new(mouse_x, mouse_y))
   end
 
-  def draw_pie(cx, cy, radius, radians, color)
-    tau = 2*Math::PI
-    rez = tau/400
-    
-    angle = 0
-    while angle + rez <= radians do
-      end_angle = angle + rez
-      x1 = cx + radius * Math::cos(angle)
-      y1 = cy + radius * Math::sin(angle)
-      x2 = cx + radius * Math::cos(end_angle)
-      y2 = cy + radius * Math::sin(end_angle)
-      draw_triangle(x1, y1, color, x2, y2, color, cx, cy, color)
-      angle = end_angle
-    end
-    x1 = radius * Math::cos(angle)
-    y1 = radius * Math::sin(angle)
-    x2 = radius * Math::cos(radians)
-    y2 = radius * Math::sin(radians)
-    draw_triangle(x1, y1, color, x2, y2, color, cx, cy, color)
-  end
-
-  def draw_arc(cx, cy, radius, radians, color)
-    tau = 2*Math::PI
-    rez = tau/400
-    
-    angle = 0
-    while angle + rez <= radians do
-      end_angle = angle + rez
-      x1 = cx + radius * Math::cos(angle)
-      y1 = cy + radius * Math::sin(angle)
-      x2 = cx + radius * Math::cos(end_angle)
-      y2 = cy + radius * Math::sin(end_angle)
-      draw_line(x1, y1, color, x2, y2, color)
-      angle = end_angle
-    end
-    x1 = radius * Math::cos(angle)
-    y1 = radius * Math::sin(angle)
-    x2 = radius * Math::cos(radians)
-    y2 = radius * Math::sin(radians)
-    draw_line(x1, y1, color, x2, y2, color)
-  end
-
-
   def draw_circle(cx, cy, radius, color, filled=true)
     if filled
-      draw_pie(cx, cy, radius, Math::PI*2, color)
+      @circle.draw cx, cy, radius, color
     else
-      draw_arc(cx, cy, radius, Math::PI*2, color)
+      @arc.draw cx, cy, radius, Math::Tau, color
     end
   end
 
@@ -77,27 +52,174 @@ class Animator < Gosu::Window
     agent = Gosu::Color.new(160, 240, 234)
 
     return if @sim.nil?
-
-    # fill background. there's probably a better way to do this...
-    draw_quad(0, 0, bg, 0, CONFIG[:height], bg, CONFIG[:width], CONFIG[:height], bg, CONFIG[:width], 0, bg)
-
-    @sim.transceivers.each do |t|
-      loc = t.loc
-
-      # visualize transceiver
-      r = CONFIG[:transceiver_radius]
-      draw_circle(loc.x, loc.y, r, agent)
-
-      # visualize transceiver's range
-      r = CONFIG[:transmission_radius] 
-      draw_circle(loc.x, loc.y, r, range)
-
-      # visualize broadcast progress
-      if t.broadcasting?
+    
+    gl do
+      glClearColor *bg.to_gl
+      glClearDepth 0
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+      
+      glEnable(GL_BLEND)
+      
+      @sim.transceivers.each do |t|
+        loc = t.loc
+        
+        # visualize transceiver
+        r = CONFIG[:transceiver_radius]
+        draw_circle(loc.x, loc.y, r, agent)
+        
+        # visualize transceiver's range
         r = CONFIG[:transmission_radius] 
-        angle = t.outgoing_broadcast.progress * Math::PI*2
-        draw_arc(loc.x, loc.y, r, angle, fg)
+        draw_circle(loc.x, loc.y, r, range)
+        
+        # visualize broadcast progress
+        if t.broadcasting?
+          r = CONFIG[:transmission_radius] 
+          angle = t.outgoing_broadcast.progress * Math::Tau
+          @arc.draw loc.x, loc.y, r, angle, fg
+        end
       end
     end
+  end
+end
+
+# wraps an OpenGL vector buffer object (VBO), which is just an array
+# in graphics card memory. assign an array of numbers to the vertices
+# attribute and it will be written to video memory immediately after
+# being packed as single-precision floats.
+class VBO
+  attr_reader :vertices
+  
+  def initialize(verts = nil)
+    @buffer = glGenBuffers(1)[0]
+    self.vertices = verts
+  end
+  
+  def vertices=(verts)
+    return unless verts
+    @vertices = verts || []
+    send_data
+  end
+  
+  protected
+    def bind_buffer
+      glBindBuffer GL_ARRAY_BUFFER, @buffer
+    end
+    
+    def send_data
+      return unless @vertices.length > 0
+      packed_verts = @vertices.flatten.pack("e*")
+      bind_buffer
+      glBufferData GL_ARRAY_BUFFER, packed_verts.length, packed_verts, GL_STATIC_DRAW
+    end
+end
+
+if CONFIG[:slow_gl]
+  
+  # draws a circle in immediate mode with the given number of subdivisions.
+  class GCircle
+    def initialize(subdivisions = 40)
+      @subdivisions = subdivisions
+    end
+    
+    def draw(x = 0, y = 0, radius = 1, color = nil)
+      rez = Math::Tau / @subdivisions
+
+      if color.nil?
+        col = [1, 1, 1, 1]
+      else
+        col = color.to_gl
+      end
+      
+      col = [1, 0, 0, 0.5]
+
+      glBegin(GL_TRIANGLE_FAN)
+        glColor4f(*col)
+        glVertex2f(x, y) # center
+        
+        angle = 0
+        while angle + rez <= Math::Tau do
+          glColor4f(*col)
+          glVertex2f(x + radius * Math::cos(angle), y + radius * Math::sin(angle))
+          angle += rez
+        end
+        
+        glColor4f(*col)
+        glVertex2f(x + radius * Math::cos(0), y + radius * Math::sin(0))
+      glEnd
+    end
+  end
+  
+else
+  
+  # VBO-backed circle mesh with the given number of subdivisions.
+  class GCircle < VBO
+    def initialize(subdivisions = 40)
+      super()
+      self.vertices = make_verts(subdivisions)
+    end
+  
+    def draw(x = 0, y = 0, radius = 1, color = nil)
+      glColor4f(*color.to_gl) if color
+    
+      glPushMatrix
+    
+        glTranslate x, y, 0
+        glScale radius, radius, 0
+      
+        bind_buffer
+        glVertexPointer 3, GL_FLOAT, 0, 0
+        glEnableClientState GL_VERTEX_ARRAY
+        glDrawArrays GL_TRIANGLE_FAN, 0, self.vertices.length
+        glDisableClientState GL_VERTEX_ARRAY
+      
+      glPopMatrix
+    end
+  
+    protected
+      def make_verts(subdivisions)
+        rez = Math::Tau/subdivisions
+      
+        verts = []
+        verts << [0, 0, 0]
+      
+        angle = 0
+        while angle + rez <= Math::Tau do
+          verts << [Math::cos(angle), Math::sin(angle), 0]
+          angle += rez
+        end
+      
+        verts << [Math::cos(0), Math::sin(0), 0]
+      
+        verts
+      end
+  end
+  
+end
+
+# renders OpenGL immediate mode arcs using LINE_LOOP.
+class GArc
+  attr_accessor :subdivisions
+  
+  def initialize(subdivisions)
+    @subdivisions = subdivisions
+  end
+  
+  def draw(x = 0, y = 0, radius = 1, radians = 3.14, color = nil)
+    rez = Math::Tau/40
+    
+    if color.nil?
+      col = [1, 1, 1, 1]
+    else
+      col = color.to_gl
+    end
+    
+    glBegin(GL_LINE_STRIP)
+      angle = 0
+      while angle + rez <= radians do
+        glColor4f(*col)
+        glVertex2f(x + radius * Math::cos(angle), y + radius * Math::sin(angle))
+        angle += rez
+      end
+    glEnd
   end
 end

@@ -15,6 +15,8 @@ require "optparse"
 
 CONFIG = {}
 
+CONFIG[:slow_gl] = true # set to true on systems without OpenGL 1.5
+
 # parse command-line options and GO!
 
 opts = OptionParser.new
@@ -26,11 +28,6 @@ rescue OptionParser::InvalidOption => e
   exit
 end
 
-# require gosu if using a GUI
-unless CONFIG[:headless]
-  require "gosu"
-  require "./animator"
-end
 
 LOG = Logger.new(STDOUT)
 LOG.level = Logger::ERROR # DEBUG, INFO, WARN, ERROR, FATAL
@@ -42,13 +39,18 @@ if CONFIG[:headless]
   @simulation.start
   $shreduler.run_until(CONFIG[:simulation_seconds])
 else
+  require "gosu"
+  require "gl"
+  require "glu"
+  require "./animator"
+  
   # construct the GUI
   anim = Animator.new
 
   # anim will render @simulation, and also give it time to run
   anim.sim = @simulation
 
-  $start_time = Time.now
+  # note: shreds only work in the thread they were created
   @simulation.start
 
   anim.show
