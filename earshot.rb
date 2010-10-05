@@ -37,8 +37,8 @@ CONFIG[:bottom_margin_px] = 20
 
 LOG = Logger.new(STDOUT)
 LOG.level = Logger::ERROR # DEBUG, INFO, WARN, ERROR, FATAL
-analyzer = Analyzer.new
-EARLOG = EarLog.new(analyzer)
+ANALYZER = Analyzer.new
+EARLOG = EarLog.new(ANALYZER)
 
 @simulation = Loader::load('scenario.scn')
 

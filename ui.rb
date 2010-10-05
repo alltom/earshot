@@ -97,6 +97,23 @@ class UI < Gosu::Window
       m, s = $shreduler.now.round.divmod(60)
       clock_font.draw(sprintf("%02dm%02ds", m, s), 20, 80, 0, 1, 1, text)
       
+      # draw analyzer stats
+      label_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 18)  # from http://www.dafont.com/theme.php?cat=503
+      value_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 16)  # from http://www.dafont.com/theme.php?cat=503
+
+      x, y = 20, 120
+      label_font.draw("Tx", x, y, 0, 1, 1, fg)
+      value_font.draw(sprintf("%03d", ANALYZER.messages_sent), x+30, y+2, 0, 1, 1, text)
+
+      x, y = 20, 140
+      label_font.draw("Rx", x, y, 0, 1, 1, fg)
+      value_font.draw(sprintf("%03d", ANALYZER.messages_delivered), x+30, y+2, 0, 1, 1, text)
+
+      x, y = 10, 160
+      label_font.draw("ADT", x, y, 0, 1, 1, fg)
+      adt = ANALYZER.avg_delivery_time
+      t = (adt.nil? && "N/A") || sprintf("%03d", ANALYZER.avg_delivery_time)
+      value_font.draw(t, x+40, y+2, 0, 1, 1, text)
 
       # draw dimensions for grid
       font_height = 10

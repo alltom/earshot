@@ -43,6 +43,7 @@ class Analyzer
 
   attr_reader :messages_sent
   attr_reader :messages_delivered
+  attr_reader :avg_delivery_time
 
   def initialize
     @agents = {} # a mapping from UID => Analyzer::Agent instance
@@ -78,7 +79,6 @@ class Analyzer
         # update the average delivery time statistic
         dlv_msgs = @messages.find_all {|k,v| v.delivered?}
         @avg_delivery_time = (dlv_msgs.map {|k,v| v.time_to_deliver}).mean
-        $stdout.puts "Tx: #{@messages_sent}\tRx: #{@messages_delivered}\tADT: #{@avg_delivery_time}"
       end
     when "move"
       agent_uid, cur_x, cur_y, new_x, new_y, speed = type_args
