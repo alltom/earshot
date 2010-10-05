@@ -13,7 +13,7 @@ module Math
   Tau = 2 * PI
 end
 
-class Animator < Gosu::Window
+class UI < Gosu::Window
   attr_accessor :sim
 
   def initialize

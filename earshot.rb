@@ -47,16 +47,16 @@ else
   require "gosu"
   require "gl"
   require "glu"
-  require "./animator"
+  require "./ui"
   
   # construct the GUI
-  anim = Animator.new
+  ui = UI.new
 
-  # anim will render @simulation, and also give it time to run
-  anim.sim = @simulation
+  # ui will render @simulation, and also give it time to run
+  ui.sim = @simulation
 
   # note: shreds only work in the thread they were created
   @simulation.start
 
-  anim.show
+  ui.show
 end
