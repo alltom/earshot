@@ -38,6 +38,10 @@ class Loader
     CONFIG[:grid_m] = grid_m
   end
 
+  def title(t)
+    CONFIG[:title] = t
+  end
+
   def self.load filename
     dsl = new
     dsl.instance_eval(File.read(filename), filename)

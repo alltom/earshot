@@ -20,7 +20,7 @@ class Animator < Gosu::Window
     w = CONFIG[:width_px] + CONFIG[:left_margin_px] + CONFIG[:right_margin_px]
     h = CONFIG[:height_px] + CONFIG[:top_margin_px] + CONFIG[:bottom_margin_px]
     super(w, h, false)
-    self.caption = "earshot"
+    self.caption = "earshot - #{CONFIG[:title]}"
     
     @circle = GCircle.new(40)
     @arc = GArc.new(40)
