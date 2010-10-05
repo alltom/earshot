@@ -19,6 +19,7 @@ class Agent
     @airspace = airspace
     @stored_messages = []
     @friend_uids = []
+    @outgoing_broadcast = nil
   end
 
   def meet(other)
