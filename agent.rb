@@ -4,8 +4,6 @@ MIN_SPEED, MAX_SPEED = 5, 20
 class Agent
   attr_accessor :airspace
   attr_accessor :outgoing_broadcast
-  attr_accessor :range_oval
-  attr_accessor :progress_oval
   attr_reader   :uid
   
   def self.uid
