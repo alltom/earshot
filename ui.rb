@@ -115,6 +115,11 @@ class UI < Gosu::Window
       t = (adt.nil? && "N/A") || sprintf("%03d", ANALYZER.avg_delivery_time)
       value_font.draw(t, x+40, y+2, 0, 1, 1, text)
 
+      x, y = 10, 180
+      label_font.draw("Clx", x, y, 0, 1, 1, fg)
+      value_font.draw(sprintf("%03d", ANALYZER.collisions), x+40, y+2, 0, 1, 1, text)
+
+
       # draw dimensions for grid
       font_height = 10
       lm = CONFIG[:left_margin_px]

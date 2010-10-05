@@ -24,7 +24,10 @@ class Airspace
       collision_receivers = []
       @broadcasts.each do |broadcast|
         broadcast.receivers.each do |receiver|
-          collision_receivers << receiver if all_receivers.include?(receiver) || receiver.broadcasting?
+          if all_receivers.include?(receiver) || receiver.broadcasting?
+            collision_receivers << receiver 
+            EARLOG::bump
+          end
         end
         all_receivers += broadcast.receivers
       end
