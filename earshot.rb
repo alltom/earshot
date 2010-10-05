@@ -29,8 +29,8 @@ end
 
 CONFIG[:width_px] = 500
 CONFIG[:height_px] = 500
-CONFIG[:left_margin_px] = 30
-CONFIG[:top_margin_px] = 30
+CONFIG[:left_margin_px] = 130
+CONFIG[:top_margin_px] = 20
 CONFIG[:right_margin_px] = 30
 CONFIG[:bottom_margin_px] = 20
 

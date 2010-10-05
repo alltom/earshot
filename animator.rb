@@ -88,6 +88,10 @@ class Animator < Gosu::Window
       
       glEnable(GL_BLEND)
 
+      # draw logo
+      icon = Gosu::Image.new(self, 'icon.png', false)
+      icon.draw(-20, -3, 1)
+
       # draw dimensions for grid
       font_height = 10
       lm = CONFIG[:left_margin_px]
