@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.47 r22583"
-   sodipodi:docname="New document 1">
+   sodipodi:docname="logo.svg">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -33,16 +33,27 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6"
-     inkscape:cx="400.54638"
+     inkscape:cx="389.36185"
      inkscape:cy="509.59029"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="false"
      inkscape:window-width="1024"
-     inkscape:window-height="741"
-     inkscape:window-x="1024"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1" />
+     inkscape:window-height="693"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     showguides="true"
+     inkscape:guide-bbox="true">
+    <sodipodi:guide
+       orientation="0,1"
+       position="396.78571,505.53571"
+       id="guide3661" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="399.46429,521.07143"
+       id="guide3663" />
+  </sodipodi:namedview>
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -80,7 +91,10 @@
     </g>
     <g
        id="g3802"
-       transform="translate(-16.428571,6.9642857)">
+       transform="translate(-16.428571,6.9643222)"
+       inkscape:export-filename="/home/mason/Desktop/earshot/icon.png"
+       inkscape:export-xdpi="360.00824"
+       inkscape:export-ydpi="360.00824">
       <path
          sodipodi:end="5.2049884"
          sodipodi:start="4.0284963"
@@ -170,35 +184,34 @@
          sodipodi:start="6.242715"
          sodipodi:end="7.131038" />
       <path
-         sodipodi:type="arc"
          style="fill:#9ef0ad;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         d="M 377.0625 530.84375 C 372.66552 530.84375 369.09375 534.41552 369.09375 538.8125 C 369.09375 543.20948 372.66552 546.78125 377.0625 546.78125 C 381.45948 546.78125 385.03125 543.20948 385.03125 538.8125 C 385.03125 534.41552 381.45948 530.84375 377.0625 530.84375 z M 380.53125 536.65625 C 381.32023 536.65625 381.96875 537.27352 381.96875 538.0625 C 381.96875 538.85148 381.32023 539.5 380.53125 539.5 C 379.74227 539.5 379.09375 538.85148 379.09375 538.0625 C 379.09375 537.27352 379.74227 536.65625 380.53125 536.65625 z M 376.96875 541.125 C 377.75773 541.125 378.40625 541.74227 378.40625 542.53125 C 378.40625 543.32023 377.75773 543.96875 376.96875 543.96875 C 376.17977 543.96875 375.53125 543.32023 375.53125 542.53125 C 375.53125 541.74227 376.17977 541.125 376.96875 541.125 z "
          id="path2816"
-         sodipodi:cx="281.42856"
-         sodipodi:cy="405.21933"
-         sodipodi:rx="47.142857"
-         sodipodi:ry="47.142857"
-         d="m 328.57141,405.21933 c 0,26.03628 -21.10657,47.14286 -47.14285,47.14286 -26.03628,0 -47.14286,-21.10658 -47.14286,-47.14286 0,-26.03628 21.10658,-47.14286 47.14286,-47.14286 26.03628,0 47.14285,21.10658 47.14285,47.14286 z"
-         transform="matrix(0.16887889,0,0,0.16887889,345.95759,463.41339)" />
-      <path
-         transform="translate(-0.35714286,3.0357143)"
-         d="m 395.17857,532.54077 c 0,0.78898 -0.63959,1.42857 -1.42857,1.42857 -0.78898,0 -1.42857,-0.63959 -1.42857,-1.42857 0,-0.78898 0.63959,-1.42857 1.42857,-1.42857 0.78898,0 1.42857,0.63959 1.42857,1.42857 z"
-         sodipodi:ry="1.4285715"
-         sodipodi:rx="1.4285715"
-         sodipodi:cy="532.54077"
-         sodipodi:cx="393.75"
-         id="path3757"
-         style="fill:#282828;fill-opacity:1;stroke:none"
-         sodipodi:type="arc" />
-      <path
-         sodipodi:type="arc"
-         style="fill:#282828;fill-opacity:1;stroke:none"
-         id="path3759"
-         sodipodi:cx="393.75"
-         sodipodi:cy="532.54077"
-         sodipodi:rx="1.4285715"
-         sodipodi:ry="1.4285715"
-         d="m 395.17857,532.54077 c 0,0.78898 -0.63959,1.42857 -1.42857,1.42857 -0.78898,0 -1.42857,-0.63959 -1.42857,-1.42857 0,-0.78898 0.63959,-1.42857 1.42857,-1.42857 0.78898,0 1.42857,0.63959 1.42857,1.42857 z"
-         transform="translate(3.2142857,-1.4285714)" />
+         transform="translate(16.428571,-6.9643222)" />
     </g>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot2877"
+       style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Bitstream Vera Sans;font-style:normal;font-weight:normal;font-size:12"><flowRegion
+         id="flowRegion2879"><rect
+           id="rect2881"
+           width="72.85714"
+           height="26.607143"
+           x="401.42856"
+           y="529.68359" /></flowRegion><flowPara
+         id="flowPara2883"></flowPara></flowRoot>    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#9ef0ad;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="391.96432"
+       y="546.82648"
+       id="text2885"
+       inkscape:export-filename="/home/mason/Desktop/earshot/logo.png"
+       inkscape:export-xdpi="90.639999"
+       inkscape:export-ydpi="90.639999"><tspan
+         sodipodi:role="line"
+         id="tspan2887"
+         x="391.96432"
+         y="546.82648"
+         style="font-size:28;fill:#9ef0ad;fill-opacity:1">earshot</tspan></text>
   </g>
 </svg>
