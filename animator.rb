@@ -104,8 +104,8 @@ class Animator < Gosu::Window
       tm = CONFIG[:top_margin_px]
       font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 10)  # from http://www.dafont.com/theme.php?cat=503
       font.draw("0", lm-10, tm-10, 0, 1, 1, text)
-      font.draw("#{CONFIG[:width_m]}", lm+CONFIG[:width_px], tm-10, 0, 1, 1, text)
-      font.draw("#{CONFIG[:height_m]}", lm-font_height*2, tm+CONFIG[:height_px] - 0.5*font_height, 0, 1, 1, text)
+      font.draw("#{CONFIG[:width_m]}m", lm+CONFIG[:width_px], tm-10, 0, 1, 1, text)
+      font.draw("#{CONFIG[:height_m]}m", lm-font_height*2, tm+CONFIG[:height_px] - 0.5*font_height, 0, 1, 1, text)
 
       # translate drawing to leave a margin around the edges
       glPushMatrix
