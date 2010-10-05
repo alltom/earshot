@@ -87,6 +87,21 @@ class Agent
       end
     end
 
+    # every so less often, broadcast a novel message
+    spork_loop do
+      Ruck::Shred.yield(rand * 50)
+      if @outgoing_broadcast.nil? and !@friend_uids.empty?
+        target_uid = @friend_uids[rand @friend_uids.length]
+        body = CONFIG[:messages][rand CONFIG[:messages].length]
+        msg = Message.new(@uid, target_uid, body)
+        @stored_messages << msg
+        EARLOG::xmit(self, target_uid, msg)
+        broadcast = broadcast_message(msg)
+        Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
+      end
+    end
+
+
     # every so often, start moving towards some random destination
     spork_loop do
       Ruck::Shred.yield(rand * 20)
