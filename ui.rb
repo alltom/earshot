@@ -25,10 +25,15 @@ class UI < Gosu::Window
     @circle = GCircle.new(40)
     @arc = GArc.new(40)
     @droplet = Gosu::Sample.new(self, 'droplet.wav')
+
+    @draw_time = 0.0
   end
 
   def update
+    tic = Gosu::milliseconds
     @sim.advance unless @sim.nil?
+    toc = Gosu::milliseconds
+    puts "update time: #{toc-tic}ms"
   end
 
   def needs_cursor?
@@ -71,6 +76,8 @@ class UI < Gosu::Window
   end
 
   def draw
+    tic = Gosu::milliseconds
+
     fg = Gosu::Color.new(158, 240, 216)
     range = Gosu::Color.new(20, 158, 240, 216)
     error = Gosu::Color.new(10, 255, 60, 32)
@@ -210,6 +217,9 @@ class UI < Gosu::Window
       # untranslate
       glPopMatrix
     end
+
+    toc = Gosu::milliseconds
+    puts "draw time: #{toc-tic}ms"
   end
 end
 
