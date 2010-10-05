@@ -19,6 +19,7 @@ class Agent
     @airspace = airspace
     @stored_messages = []
     @friend_uids = []
+    @outgoing_broadcast = nil
   end
 
   def meet(other)
@@ -134,6 +135,7 @@ class ChattyAgent < Agent
         body = CONFIG[:messages][rand CONFIG[:messages].length]
         msg = Message.new(@uid, target_uid, body)
         @stored_messages << msg
+        EARLOG::xmit(self, target_uid, msg)
         broadcast = broadcast_message(msg)
         Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
       end

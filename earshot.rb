@@ -7,6 +7,7 @@ require "./uid"
 require "./message"
 require "./loader"
 require "./earlog"
+require "./analyzer"
 
 require "rubygems"
 require "ruck"
@@ -36,7 +37,8 @@ CONFIG[:bottom_margin_px] = 20
 
 LOG = Logger.new(STDOUT)
 LOG.level = Logger::ERROR # DEBUG, INFO, WARN, ERROR, FATAL
-EARLOG = EarLog.new(STDOUT)
+analyzer = Analyzer.new
+EARLOG = EarLog.new(analyzer)
 
 @simulation = Loader::load('scenario.scn')
 
