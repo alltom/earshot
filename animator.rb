@@ -92,6 +92,12 @@ class Animator < Gosu::Window
       icon = Gosu::Image.new(self, 'icon.png', false)
       icon.draw(-20, -3, 1)
 
+      # draw clock
+      clock_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 20)  # from http://www.dafont.com/theme.php?cat=503
+      m, s = $shreduler.now.round.divmod(60)
+      clock_font.draw(sprintf("%02dm%02ds", m, s), 20, 80, 0, 1, 1, text)
+      
+
       # draw dimensions for grid
       font_height = 10
       lm = CONFIG[:left_margin_px]
