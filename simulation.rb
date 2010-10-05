@@ -20,6 +20,7 @@ class Simulation
   def add_agent(loc=nil)
     loc ||= Loc.new((rand * CONFIG[:width_m]).to_i, (rand * CONFIG[:height_m]).to_i)
     agent = ChattyAgent.new(loc, @airspace)
+    EARLOG.born(agent)
     @agents << agent
     @airspace << agent
     agent.start
@@ -37,7 +38,7 @@ class Simulation
 
     # every so often, introduce one agent to another
     spork_loop do
-      Ruck::Shred.yield(rand * 10)
+      Ruck::Shred.yield(rand * 5)
       
       a = @agents.sample
       b = (@agents - [a]).sample

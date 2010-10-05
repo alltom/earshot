@@ -3,15 +3,21 @@ class EarLog
     @outfile = outfile
   end
 
-  def xmit(relay, dest, message)
-    @outfile.puts "#{$shreduler.now}\t#{relay.uid}\txmit\t#{dest.uid}\t#{message.uid}\t#{message.length}"
+  def born(agent)
+    l = agent.loc
+    @outfile.puts "#{$shreduler.now}\tborn\t#{agent.uid}\t#{l.x}\t#{l.y}"
+  end
+
+  def xmit(relay, dest_uid, message)
+    @outfile.puts "#{$shreduler.now}\txmit\t#{relay.uid}\t#{dest_uid}\t#{message.uid}\t#{message.length}"
   end
 
   def recv(agent, message)
-    @outfile.puts "#{$shreduler.now}\t#{agent.uid}\trecv\t#{message.uid}"
+    @outfile.puts "#{$shreduler.now}\trecv\t#{agent.uid}\t#{message.uid}"
   end
 
-  def move(agent, xo, yo, speed)
-    @outfile.puts "#{$shreduler.now}\t#{agent.uid}\tmove\t#{xo}\t#{yo}\t#{speed}"
+  def move(agent, new_x, new_y, speed)
+    l = agent.loc
+    @outfile.puts "#{$shreduler.now}\tmove\t#{agent.uid}\t#{l.x}\t#{l.y}\t#{new_x}\t#{new_y}\t#{speed}"
   end
 end
