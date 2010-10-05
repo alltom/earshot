@@ -24,6 +24,7 @@ class Animator < Gosu::Window
     
     @circle = GCircle.new(40)
     @arc = GArc.new(40)
+    @droplet = Gosu::Sample.new(self, 'droplet.wav')
   end
 
   def update
@@ -156,6 +157,9 @@ class Animator < Gosu::Window
             glEnd
           end
         end
+
+        # sonify broadcast initiations
+        @droplet.play if t.broadcasting? and t.outgoing_broadcast.progress == 0
       end
 
       # visualize failed broadcasts (due to collisions and moving out-of-range)
