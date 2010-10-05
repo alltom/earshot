@@ -8,8 +8,8 @@ class EarLog
     @outfile.puts "#{$shreduler.now}\tborn\t#{agent.uid}\t#{l.x}\t#{l.y}"
   end
 
-  def xmit(relay, dest_uid, message)
-    @outfile.puts "#{$shreduler.now}\txmit\t#{relay.uid}\t#{dest_uid}\t#{message.uid}\t#{message.length}"
+  def xmit(sender, dest_uid, message)
+    @outfile.puts "#{$shreduler.now}\txmit\t#{sender.uid}\t#{dest_uid}\t#{message.uid}\t#{message.length}"
   end
 
   def recv(agent, message)
@@ -23,5 +23,9 @@ class EarLog
 
   def bump()
     @outfile.puts "#{$shreduler.now}\tbump"
+  end
+
+  def relay(relay, message)
+    @outfile.puts "#{$shreduler.now}\trelay\t#{relay.uid}\t#{message.uid}"
   end
 end

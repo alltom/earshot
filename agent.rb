@@ -80,7 +80,9 @@ class Agent
       Ruck::Shred.yield(rand * 10)
       
       if @outgoing_broadcast.nil? && @stored_messages.length > 0
-        broadcast = broadcast_message(@stored_messages[rand @stored_messages.length])
+        msg = @stored_messages[rand @stored_messages.length]
+        broadcast = broadcast_message(msg)
+        EARLOG::relay(self, msg)
         Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
       end
     end

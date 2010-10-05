@@ -45,6 +45,7 @@ class Analyzer
   attr_reader :messages_delivered
   attr_reader :avg_delivery_time
   attr_reader :collisions
+  attr_reader :relays
 
   def initialize
     @agents = {} # a mapping from UID => Analyzer::Agent instance
@@ -56,6 +57,7 @@ class Analyzer
     @messages_delivered = 0
     @avg_delivery_time = nil
     @collisions = 0
+    @relays = 0
   end
 
   # puts is defined so EarLog can output to an Analyzer as well as a file
@@ -86,6 +88,9 @@ class Analyzer
       agent_uid, cur_x, cur_y, new_x, new_y, speed = type_args
     when "bump"
       @collisions += 1
+    when "relay"
+      relay_uid, message_uid = type_args
+      @relays += 1
     end
 
     @time_elapsed = time
