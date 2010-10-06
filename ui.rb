@@ -197,8 +197,8 @@ class UI < Gosu::Window
   def draw
     return if @sim.nil?
 
-    require 'ruby-prof'
-    RubyProf.start
+    #require 'ruby-prof'
+    #RubyProf.start
     tic = Gosu::milliseconds
     
     gl do
@@ -247,10 +247,10 @@ class UI < Gosu::Window
 
     toc = Gosu::milliseconds
     puts "draw time: #{toc-tic}ms"
-    result = RubyProf.stop
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('profile.html', 'w') { |f| printer.print(f) }
-    exit
+    #result = RubyProf.stop
+    #printer = RubyProf::GraphHtmlPrinter.new(result)
+    #File.open('profile.html', 'w') { |f| printer.print(f) }
+    #exit
   end
 end
 
@@ -295,6 +295,14 @@ if CONFIG[:slow_gl]
       @vertices = angles.map { |angle| [Math::cos(angle), Math::sin(angle)] }
 
       @gl_colors = { nil => [1, 1, 1, 1] }
+
+      @disp_list = glGenLists(1)
+      glNewList(@disp_list, GL_COMPILE)
+      glBegin(GL_TRIANGLE_FAN)
+        glVertex2f(0, 0) # center
+        @vertices.each { |xo, yo| glVertex2f(xo, yo) }
+      glEnd
+      glEndList
     end
     
     def draw(x = 0, y = 0, radius = 1, color = nil)
@@ -303,11 +311,8 @@ if CONFIG[:slow_gl]
       glPushMatrix
       glTranslate x, y, 0
       glScale radius, radius, 1
-      glBegin(GL_TRIANGLE_FAN)
-        glColor4f(*@gl_colors[color])
-        glVertex2f(0, 0) # center
-        @vertices.each { |xo, yo| glVertex2f(xo, yo) }
-      glEnd
+      glColor4f(*@gl_colors[color])
+      glCallList(@disp_list)
       glPopMatrix
     end
   end
