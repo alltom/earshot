@@ -27,6 +27,15 @@ class UI < Gosu::Window
     @droplet = Gosu::Sample.new(self, 'droplet.wav')
 
     @draw_time = 0.0
+
+    
+    @text_color = Gosu::Color.new(200, 100, 100, 100)
+    @fg_color = Gosu::Color.new(158, 240, 216)
+    @grid_color = Gosu::Color.new(20, 100, 100, 100)
+    @range_color = Gosu::Color.new(20, 158, 240, 216)
+    @error_color = Gosu::Color.new(10, 255, 60, 32)
+    @bg_color = Gosu::Color.new(40, 40, 40)
+    @agent_color = Gosu::Color.new(160, 240, 234)
   end
 
   def update
@@ -75,16 +84,128 @@ class UI < Gosu::Window
     end
   end
 
+  def draw_logo
+    icon = Gosu::Image.new(self, 'icon.png', false)
+    icon.draw(-20, -3, 1)
+  end
+
+  def draw_clock
+    clock_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 20)  # from http://www.dafont.com/theme.php?cat=503
+    m, s = $shreduler.now.round.divmod(60)
+    clock_font.draw(sprintf("%02dm%02ds", m, s), 20, 80, 0, 1, 1, @text_color)
+  end
+
+  def draw_analyzer_stats
+    label_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 18)  # from http://www.dafont.com/theme.php?cat=503
+    value_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 16)  # from http://www.dafont.com/theme.php?cat=503
+
+    x, y = 20, 120
+    label_font.draw("Tx", x, y, 0, 1, 1, @fg_color)
+    value_font.draw(sprintf("%03d", ANALYZER.messages_sent), x+30, y+2, 0, 1, 1, @text_color)
+
+    x, y = 20, 140
+    label_font.draw("Rx", x, y, 0, 1, 1, @fg_color)
+    value_font.draw(sprintf("%03d", ANALYZER.messages_delivered), x+30, y+2, 0, 1, 1, @text_color)
+
+    x, y = 10, 160
+    label_font.draw("ADT", x, y, 0, 1, 1, @fg_color)
+    adt = ANALYZER.avg_delivery_time
+    t = (adt.nil? && "N/A") || sprintf("%03ds", ANALYZER.avg_delivery_time)
+    value_font.draw(t, x+40, y+2, 0, 1, 1, @text_color)
+
+    x, y = 10, 180
+    label_font.draw("Clx", x, y, 0, 1, 1, @fg_color)
+    value_font.draw(sprintf("%03d", ANALYZER.collisions), x+40, y+2, 0, 1, 1, @text_color)
+
+    x, y = 10, 200
+    label_font.draw("Rlx", x, y, 0, 1, 1, @fg_color)
+    value_font.draw(sprintf("%03d", ANALYZER.relays), x+40, y+2, 0, 1, 1, @text_color)
+
+    x, y = 30, 220
+    label_font.draw("N", x, y, 0, 1, 1, @fg_color)
+    value_font.draw(sprintf("%03d", ANALYZER.num_agents), x+20, y+2, 0, 1, 1, @text_color)
+  end
+
+  def draw_grid_dimensions
+    font_height = 10
+    lm = CONFIG[:left_margin_px]
+    tm = CONFIG[:top_margin_px]
+    font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 10)  # from http://www.dafont.com/theme.php?cat=503
+    font.draw("0", lm-10, tm-10, 0, 1, 1, @text_color)
+    font.draw("#{CONFIG[:width_m]}m", lm+CONFIG[:width_px], tm-10, 0, 1, 1, @text_color)
+    font.draw("#{CONFIG[:height_m]}m", lm-font_height*2, tm+CONFIG[:height_px] - 0.5*font_height, 0, 1, 1, @text_color)
+  end
+
+  def draw_grid
+    x_m, y_m = 0, 0
+    while x_m <= CONFIG[:width_m]
+      glColor4f(*@grid_color.to_gl)
+      glLineWidth 2
+      glBegin(GL_LINES)
+        glVertex2f(x_m, 0)
+        glVertex2f(x_m, CONFIG[:height_m])
+      glEnd
+      x_m += CONFIG[:grid_m]
+    end
+
+    while y_m <= CONFIG[:height_m]
+      glColor4f(*@grid_color.to_gl)
+      glLineWidth 2
+      glBegin(GL_LINES)
+        glVertex2f(0, y_m)
+        glVertex2f(CONFIG[:width_m], y_m)
+      glEnd
+      y_m += CONFIG[:grid_m]
+    end
+  end
+
+  def draw_agent(a)
+    r = CONFIG[:agent_radius_m]
+    draw_circle(a.loc.x, a.loc.y, r, @agent_color)
+  end
+
+  def draw_agent_range(a)
+    r = CONFIG[:transmission_radius_m] 
+    draw_circle(a.loc.x, a.loc.y, r, @range_color)
+  end
+
+  def draw_broadcast_progress(a)
+    r = CONFIG[:transmission_radius_m] 
+    angle = a.outgoing_broadcast.progress * Math::Tau
+    @arc.draw a.loc.x, a.loc.y, r, angle, @fg_color
+  end
+
+  def sonify_broadcast()
+    @droplet.play
+  end
+
+  def draw_failed_broadcast(a)
+    draw_circle(a.loc.x, a.loc.y, CONFIG[:transmission_radius_m], @error_color)
+  end
+
+  def draw_transmission_links(a)
+    a.outgoing_broadcast.receivers.each do |rxer|
+      glColor4f(*@fg_color.to_gl)
+      glLineWidth 2
+      glBegin(GL_LINES)
+        glVertex2f(a.loc.x, a.loc.y)
+        glVertex2f(rxer.loc.x, rxer.loc.y)
+      glEnd
+    end
+  end
+
   def draw
+    #require 'profiler'
+    #Profiler__::start_profile
     tic = Gosu::milliseconds
 
-    fg = Gosu::Color.new(158, 240, 216)
-    range = Gosu::Color.new(20, 158, 240, 216)
-    error = Gosu::Color.new(10, 255, 60, 32)
-    bg = Gosu::Color.new(40, 40, 40)
-    grid = Gosu::Color.new(20, 100, 100, 100)
-    text = Gosu::Color.new(200, 100, 100, 100)
-    agent = Gosu::Color.new(160, 240, 234)
+    fg = @fg_color
+    range = @range_color
+    error = @error_color
+    bg = @bg_color
+    grid = @grid_color
+    agent = @agent_color
+    text = @text_color
 
     return if @sim.nil?
     
@@ -95,53 +216,10 @@ class UI < Gosu::Window
       
       glEnable(GL_BLEND)
 
-      # draw logo
-      icon = Gosu::Image.new(self, 'icon.png', false)
-      icon.draw(-20, -3, 1)
-
-      # draw clock
-      clock_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 20)  # from http://www.dafont.com/theme.php?cat=503
-      m, s = $shreduler.now.round.divmod(60)
-      clock_font.draw(sprintf("%02dm%02ds", m, s), 20, 80, 0, 1, 1, text)
-      
-      # draw analyzer stats
-      label_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 18)  # from http://www.dafont.com/theme.php?cat=503
-      value_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 16)  # from http://www.dafont.com/theme.php?cat=503
-
-      x, y = 20, 120
-      label_font.draw("Tx", x, y, 0, 1, 1, fg)
-      value_font.draw(sprintf("%03d", ANALYZER.messages_sent), x+30, y+2, 0, 1, 1, text)
-
-      x, y = 20, 140
-      label_font.draw("Rx", x, y, 0, 1, 1, fg)
-      value_font.draw(sprintf("%03d", ANALYZER.messages_delivered), x+30, y+2, 0, 1, 1, text)
-
-      x, y = 10, 160
-      label_font.draw("ADT", x, y, 0, 1, 1, fg)
-      adt = ANALYZER.avg_delivery_time
-      t = (adt.nil? && "N/A") || sprintf("%03ds", ANALYZER.avg_delivery_time)
-      value_font.draw(t, x+40, y+2, 0, 1, 1, text)
-
-      x, y = 10, 180
-      label_font.draw("Clx", x, y, 0, 1, 1, fg)
-      value_font.draw(sprintf("%03d", ANALYZER.collisions), x+40, y+2, 0, 1, 1, text)
-
-      x, y = 10, 200
-      label_font.draw("Rlx", x, y, 0, 1, 1, fg)
-      value_font.draw(sprintf("%03d", ANALYZER.relays), x+40, y+2, 0, 1, 1, text)
-
-      x, y = 30, 220
-      label_font.draw("N", x, y, 0, 1, 1, fg)
-      value_font.draw(sprintf("%03d", ANALYZER.num_agents), x+20, y+2, 0, 1, 1, text)
-
-      # draw dimensions for grid
-      font_height = 10
-      lm = CONFIG[:left_margin_px]
-      tm = CONFIG[:top_margin_px]
-      font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 10)  # from http://www.dafont.com/theme.php?cat=503
-      font.draw("0", lm-10, tm-10, 0, 1, 1, text)
-      font.draw("#{CONFIG[:width_m]}m", lm+CONFIG[:width_px], tm-10, 0, 1, 1, text)
-      font.draw("#{CONFIG[:height_m]}m", lm-font_height*2, tm+CONFIG[:height_px] - 0.5*font_height, 0, 1, 1, text)
+      draw_logo
+      draw_clock
+      draw_analyzer_stats
+      draw_grid_dimensions
 
       # translate drawing to leave a margin around the edges
       glPushMatrix
@@ -152,67 +230,20 @@ class UI < Gosu::Window
       w_scale, h_scale = world2screen(1.0, 1.0)
       glScale(w_scale, h_scale, 1)
 
-      # draw grid
-      x_m, y_m = 0, 0
-      while x_m <= CONFIG[:width_m]
-        glColor4f(*grid.to_gl)
-        glLineWidth 2
-        glBegin(GL_LINES)
-          glVertex2f(x_m, 0)
-          glVertex2f(x_m, CONFIG[:height_m])
-        glEnd
-        x_m += CONFIG[:grid_m]
-      end
-
-      while y_m <= CONFIG[:height_m]
-        glColor4f(*grid.to_gl)
-        glLineWidth 2
-        glBegin(GL_LINES)
-          glVertex2f(0, y_m)
-          glVertex2f(CONFIG[:width_m], y_m)
-        glEnd
-        y_m += CONFIG[:grid_m]
-      end
-
+      draw_grid
+      
       @sim.agents.each do |t|
         loc = t.loc
         
-        # visualize agent
-        r = CONFIG[:agent_radius_m]
-        draw_circle(loc.x, loc.y, r, agent)
-        
-        # visualize agent's range
-        r = CONFIG[:transmission_radius_m] 
-        draw_circle(loc.x, loc.y, r, range)
-        
-        # visualize broadcast progress
-        if t.broadcasting?
-          r = CONFIG[:transmission_radius_m] 
-          angle = t.outgoing_broadcast.progress * Math::Tau
-          @arc.draw loc.x, loc.y, r, angle, fg
-        end
-
-        # visualize links between tx-ing agent and rx-ing agents
-        if t.broadcasting?
-          t.outgoing_broadcast.receivers.each do |rxer|
-            glColor4f(*fg.to_gl)
-            glLineWidth 2
-            glBegin(GL_LINES)
-              glVertex2f(t.loc.x, t.loc.y)
-              glVertex2f(rxer.loc.x, rxer.loc.y)
-            glEnd
-          end
-        end
-
-        # sonify broadcast initiations
-        @droplet.play if t.broadcasting? and t.outgoing_broadcast.progress == 0
+        draw_agent(t)
+        draw_agent_range(t)
+        draw_broadcast_progress(t) if t.broadcasting?
+        draw_transmission_links(t) if t.broadcasting?
+        sonify_broadcast if t.broadcasting? and t.outgoing_broadcast.progress == 0
       end
 
-      # visualize failed broadcasts (due to collisions and moving out-of-range)
       @sim.airspace.broadcasts.each do |b|
-        b.failed_receivers.each do |r|
-          draw_circle(r.loc.x, r.loc.y, CONFIG[:transmission_radius_m], error)
-        end
+        b.failed_receivers.each { |r| draw_failed_broadcast(r) }
       end
 
       # return to screen coordinates
@@ -224,6 +255,9 @@ class UI < Gosu::Window
 
     toc = Gosu::milliseconds
     puts "draw time: #{toc-tic}ms"
+    #Profiler__::stop_profile
+    #Profiler__::print_profile($stdout)
+    #exit
   end
 end
 
