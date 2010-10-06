@@ -85,55 +85,55 @@ class UI < Gosu::Window
   end
 
   def draw_logo
-    icon = Gosu::Image.new(self, 'icon.png', false)
-    icon.draw(-20, -3, 1)
+    @icon ||= Gosu::Image.new(self, 'icon.png', false)
+    @icon.draw(-20, -3, 1)
   end
 
   def draw_clock
-    clock_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 20)  # from http://www.dafont.com/theme.php?cat=503
+    @clock_font ||= Gosu::Font.new(self, "./fonts/unispace bd.ttf", 20)  # from http://www.dafont.com/theme.php?cat=503
     m, s = $shreduler.now.round.divmod(60)
-    clock_font.draw(sprintf("%02dm%02ds", m, s), 20, 80, 0, 1, 1, @text_color)
+    @clock_font.draw(sprintf("%02dm%02ds", m, s), 20, 80, 0, 1, 1, @text_color)
   end
 
   def draw_analyzer_stats
-    label_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 18)  # from http://www.dafont.com/theme.php?cat=503
-    value_font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 16)  # from http://www.dafont.com/theme.php?cat=503
+    @label_font ||= Gosu::Font.new(self, "./fonts/unispace bd.ttf", 18)  # from http://www.dafont.com/theme.php?cat=503
+    @value_font ||= Gosu::Font.new(self, "./fonts/unispace bd.ttf", 16)  # from http://www.dafont.com/theme.php?cat=503
 
     x, y = 20, 120
-    label_font.draw("Tx", x, y, 0, 1, 1, @fg_color)
-    value_font.draw(sprintf("%03d", ANALYZER.messages_sent), x+30, y+2, 0, 1, 1, @text_color)
+    @label_font.draw("Tx", x, y, 0, 1, 1, @fg_color)
+    @value_font.draw(sprintf("%03d", ANALYZER.messages_sent), x+30, y+2, 0, 1, 1, @text_color)
 
     x, y = 20, 140
-    label_font.draw("Rx", x, y, 0, 1, 1, @fg_color)
-    value_font.draw(sprintf("%03d", ANALYZER.messages_delivered), x+30, y+2, 0, 1, 1, @text_color)
+    @label_font.draw("Rx", x, y, 0, 1, 1, @fg_color)
+    @value_font.draw(sprintf("%03d", ANALYZER.messages_delivered), x+30, y+2, 0, 1, 1, @text_color)
 
     x, y = 10, 160
-    label_font.draw("ADT", x, y, 0, 1, 1, @fg_color)
+    @label_font.draw("ADT", x, y, 0, 1, 1, @fg_color)
     adt = ANALYZER.avg_delivery_time
     t = (adt.nil? && "N/A") || sprintf("%03ds", ANALYZER.avg_delivery_time)
-    value_font.draw(t, x+40, y+2, 0, 1, 1, @text_color)
+    @value_font.draw(t, x+40, y+2, 0, 1, 1, @text_color)
 
     x, y = 10, 180
-    label_font.draw("Clx", x, y, 0, 1, 1, @fg_color)
-    value_font.draw(sprintf("%03d", ANALYZER.collisions), x+40, y+2, 0, 1, 1, @text_color)
+    @label_font.draw("Clx", x, y, 0, 1, 1, @fg_color)
+    @value_font.draw(sprintf("%03d", ANALYZER.collisions), x+40, y+2, 0, 1, 1, @text_color)
 
     x, y = 10, 200
-    label_font.draw("Rlx", x, y, 0, 1, 1, @fg_color)
-    value_font.draw(sprintf("%03d", ANALYZER.relays), x+40, y+2, 0, 1, 1, @text_color)
+    @label_font.draw("Rlx", x, y, 0, 1, 1, @fg_color)
+    @value_font.draw(sprintf("%03d", ANALYZER.relays), x+40, y+2, 0, 1, 1, @text_color)
 
     x, y = 30, 220
-    label_font.draw("N", x, y, 0, 1, 1, @fg_color)
-    value_font.draw(sprintf("%03d", ANALYZER.num_agents), x+20, y+2, 0, 1, 1, @text_color)
+    @label_font.draw("N", x, y, 0, 1, 1, @fg_color)
+    @value_font.draw(sprintf("%03d", ANALYZER.num_agents), x+20, y+2, 0, 1, 1, @text_color)
   end
 
   def draw_grid_dimensions
+    @grid_dim_font ||= Gosu::Font.new(self, "./fonts/unispace bd.ttf", 10)  # from http://www.dafont.com/theme.php?cat=503
     font_height = 10
     lm = CONFIG[:left_margin_px]
     tm = CONFIG[:top_margin_px]
-    font = Gosu::Font.new(self, "./fonts/unispace bd.ttf", 10)  # from http://www.dafont.com/theme.php?cat=503
-    font.draw("0", lm-10, tm-10, 0, 1, 1, @text_color)
-    font.draw("#{CONFIG[:width_m]}m", lm+CONFIG[:width_px], tm-10, 0, 1, 1, @text_color)
-    font.draw("#{CONFIG[:height_m]}m", lm-font_height*2, tm+CONFIG[:height_px] - 0.5*font_height, 0, 1, 1, @text_color)
+    @grid_dim_font.draw("0", lm-10, tm-10, 0, 1, 1, @text_color)
+    @grid_dim_font.draw("#{CONFIG[:width_m]}m", lm+CONFIG[:width_px], tm-10, 0, 1, 1, @text_color)
+    @grid_dim_font.draw("#{CONFIG[:height_m]}m", lm-font_height*2, tm+CONFIG[:height_px] - 0.5*font_height, 0, 1, 1, @text_color)
   end
 
   def draw_grid
@@ -207,9 +207,9 @@ class UI < Gosu::Window
       
       glEnable(GL_BLEND)
 
-      #draw_logo
-      #draw_clock
-      #draw_analyzer_stats
+      draw_logo
+      draw_clock
+      draw_analyzer_stats
       draw_grid_dimensions
 
       # translate drawing to leave a margin around the edges
