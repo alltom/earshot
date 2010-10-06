@@ -197,21 +197,21 @@ class UI < Gosu::Window
   def draw
     return if @sim.nil?
 
-    #require 'profiler'
-    #Profiler__::start_profile
+    require 'ruby-prof'
+    RubyProf.start
     tic = Gosu::milliseconds
     
     gl do
-      glClearColor *bg.to_gl
+      glClearColor *@bg_color.to_gl
       glClearDepth 0
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
       
       glEnable(GL_BLEND)
 
-      #draw_logo
-      #draw_clock
-      #draw_analyzer_stats
-      #draw_grid_dimensions
+      draw_logo
+      draw_clock
+      draw_analyzer_stats
+      draw_grid_dimensions
 
       # translate drawing to leave a margin around the edges
       glPushMatrix
@@ -247,9 +247,10 @@ class UI < Gosu::Window
 
     toc = Gosu::milliseconds
     puts "draw time: #{toc-tic}ms"
-    #Profiler__::stop_profile
-    #Profiler__::print_profile($stdout)
-    #exit
+    result = RubyProf.stop
+    printer = RubyProf::GraphHtmlPrinter.new(result)
+    File.open('profile.html', 'w') { |f| printer.print(f) }
+    exit
   end
 end
 
