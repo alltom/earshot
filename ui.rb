@@ -130,6 +130,10 @@ class UI < Gosu::Window
       label_font.draw("Rlx", x, y, 0, 1, 1, fg)
       value_font.draw(sprintf("%03d", ANALYZER.relays), x+40, y+2, 0, 1, 1, text)
 
+      x, y = 30, 220
+      label_font.draw("N", x, y, 0, 1, 1, fg)
+      value_font.draw(sprintf("%03d", ANALYZER.num_agents), x+20, y+2, 0, 1, 1, text)
+
       # draw dimensions for grid
       font_height = 10
       lm = CONFIG[:left_margin_px]
