@@ -195,19 +195,11 @@ class UI < Gosu::Window
   end
 
   def draw
+    return if @sim.nil?
+
     #require 'profiler'
     #Profiler__::start_profile
     tic = Gosu::milliseconds
-
-    fg = @fg_color
-    range = @range_color
-    error = @error_color
-    bg = @bg_color
-    grid = @grid_color
-    agent = @agent_color
-    text = @text_color
-
-    return if @sim.nil?
     
     gl do
       glClearColor *bg.to_gl
@@ -216,10 +208,10 @@ class UI < Gosu::Window
       
       glEnable(GL_BLEND)
 
-      draw_logo
-      draw_clock
-      draw_analyzer_stats
-      draw_grid_dimensions
+      #draw_logo
+      #draw_clock
+      #draw_analyzer_stats
+      #draw_grid_dimensions
 
       # translate drawing to leave a margin around the edges
       glPushMatrix
