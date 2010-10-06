@@ -159,20 +159,20 @@ class UI < Gosu::Window
     end
   end
 
-  def draw_agent(a)
+  def draw_agent(a, loc)
     r = CONFIG[:agent_radius_m]
-    draw_circle(a.loc.x, a.loc.y, r, @agent_color)
+    draw_circle(loc.x, loc.y, r, @agent_color)
   end
 
-  def draw_agent_range(a)
+  def draw_agent_range(a, loc)
     r = CONFIG[:transmission_radius_m] 
-    draw_circle(a.loc.x, a.loc.y, r, @range_color)
+    draw_circle(loc.x, loc.y, r, @range_color)
   end
 
-  def draw_broadcast_progress(a)
+  def draw_broadcast_progress(a, loc)
     r = CONFIG[:transmission_radius_m] 
     angle = a.outgoing_broadcast.progress * Math::Tau
-    @arc.draw a.loc.x, a.loc.y, r, angle, @fg_color
+    @arc.draw loc.x, loc.y, r, angle, @fg_color
   end
 
   def sonify_broadcast()
@@ -180,15 +180,16 @@ class UI < Gosu::Window
   end
 
   def draw_failed_broadcast(a)
-    draw_circle(a.loc.x, a.loc.y, CONFIG[:transmission_radius_m], @error_color)
+    loc = a.loc
+    draw_circle(loc.x, loc.y, CONFIG[:transmission_radius_m], @error_color)
   end
 
-  def draw_transmission_links(a)
+  def draw_transmission_links(a, loc)
     a.outgoing_broadcast.receivers.each do |rxer|
       glColor4f(*@fg_color.to_gl)
       glLineWidth 2
       glBegin(GL_LINES)
-        glVertex2f(a.loc.x, a.loc.y)
+        glVertex2f(loc.x, loc.y)
         glVertex2f(rxer.loc.x, rxer.loc.y)
       glEnd
     end
@@ -197,8 +198,6 @@ class UI < Gosu::Window
   def draw
     return if @sim.nil?
 
-    #require 'ruby-prof'
-    #RubyProf.start
     tic = Gosu::milliseconds
     
     gl do
@@ -208,9 +207,9 @@ class UI < Gosu::Window
       
       glEnable(GL_BLEND)
 
-      draw_logo
-      draw_clock
-      draw_analyzer_stats
+      #draw_logo
+      #draw_clock
+      #draw_analyzer_stats
       draw_grid_dimensions
 
       # translate drawing to leave a margin around the edges
@@ -227,10 +226,10 @@ class UI < Gosu::Window
       @sim.agents.each do |t|
         loc = t.loc
         
-        draw_agent(t)
-        draw_agent_range(t)
-        draw_broadcast_progress(t) if t.broadcasting?
-        draw_transmission_links(t) if t.broadcasting?
+        draw_agent(t, loc)
+        draw_agent_range(t, loc)
+        draw_broadcast_progress(t, loc) if t.broadcasting?
+        draw_transmission_links(t, loc) if t.broadcasting?
         sonify_broadcast if t.broadcasting? and t.outgoing_broadcast.progress == 0
       end
 
@@ -247,10 +246,6 @@ class UI < Gosu::Window
 
     toc = Gosu::milliseconds
     puts "draw time: #{toc-tic}ms"
-    #result = RubyProf.stop
-    #printer = RubyProf::GraphHtmlPrinter.new(result)
-    #File.open('profile.html', 'w') { |f| printer.print(f) }
-    #exit
   end
 end
 
