@@ -272,14 +272,13 @@ if CONFIG[:slow_gl]
       @angles = nil
       @vertices = {}
       @gl_colors = { nil => [1, 1, 1, 1] }
+      @rez = Math::Tau / @subdivisions
     end
     
     def draw(x = 0, y = 0, radius = 1, color = nil)
-      rez = Math::Tau / @subdivisions
-
       @gl_colors[color] ||= color.to_gl
 
-      @angles ||= (0..@subdivisions).map { |s| s*rez }
+      @angles ||= (0..@subdivisions).map { |s| s * @rez }
       @vertices[radius] ||= @angles.map do |angle| 
           [radius * Math::cos(angle), radius * Math::sin(angle)]
       end
