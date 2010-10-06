@@ -76,6 +76,8 @@ class UI < Gosu::Window
   end
 
   def draw
+    require 'profiler'
+    Profiler__::start_profile
     tic = Gosu::milliseconds
 
     fg = Gosu::Color.new(158, 240, 216)
@@ -224,6 +226,9 @@ class UI < Gosu::Window
 
     toc = Gosu::milliseconds
     puts "draw time: #{toc-tic}ms"
+    Profiler__::stop_profile
+    Profiler__::print_profile($stdout)
+    exit
   end
 end
 

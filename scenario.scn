@@ -1,5 +1,6 @@
 title "GLOBAL THERMONUCLEAR WAR"
-size 500, 500           # in meters
+w, h = 500, 500
+size w, h               # in meters
 grid 40                 # grid square side-length, in meters
 seconds_per_bit 0.1
 agent_radius 1          # in meters
@@ -13,6 +14,4 @@ messages ["HELLO",
           "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
 
 speed 80.0/60  # in m/s (http://en.wikipedia.org/wiki/Walking#Walking_speed)
-a1 = agent 40, 400
-a2 = agent 90, 120
-a1.meet a2
+(1..100).each { agent rand*w, rand*h }
