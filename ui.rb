@@ -374,25 +374,24 @@ class GArc
   attr_accessor :subdivisions
   
   def initialize(subdivisions)
-    @subdivisions = subdivisions
+    @rez = Math::Tau/40
+    @angles = (0..subdivisions).map { |s| s * @rez }
+    @vertices = @angles.map { |angle| [Math::cos(angle), Math::sin(angle)] }
+    @gl_colors = { nil => [1, 1, 1, 1] }
   end
   
   def draw(x = 0, y = 0, radius = 1, radians = 3.14, color = nil)
-    rez = Math::Tau/40
+    slices = (radians/@rez).round
     
-    if color.nil?
-      col = [1, 1, 1, 1]
-    else
-      col = color.to_gl
-    end
+    @gl_colors[color] ||= color.to_gl
     
+    glColor4f(*@gl_colors[color])
+    glPushMatrix
+    glTranslate x, y, 0
+    glScale radius, radius, 1
     glBegin(GL_LINE_STRIP)
-      angle = 0
-      while angle + rez <= radians do
-        glColor4f(*col)
-        glVertex2f(x + radius * Math::cos(angle), y + radius * Math::sin(angle))
-        angle += rez
-      end
+      @vertices[(0..slices)].each { |xo, yo| glVertex2f(xo, yo) }
     glEnd
+    glPopMatrix
   end
 end
