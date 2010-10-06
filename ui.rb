@@ -76,8 +76,8 @@ class UI < Gosu::Window
   end
 
   def draw
-    require 'profiler'
-    Profiler__::start_profile
+    #require 'profiler'
+    #Profiler__::start_profile
     tic = Gosu::milliseconds
 
     fg = Gosu::Color.new(158, 240, 216)
@@ -226,9 +226,9 @@ class UI < Gosu::Window
 
     toc = Gosu::milliseconds
     puts "draw time: #{toc-tic}ms"
-    Profiler__::stop_profile
-    Profiler__::print_profile($stdout)
-    exit
+    #Profiler__::stop_profile
+    #Profiler__::print_profile($stdout)
+    #exit
   end
 end
 
@@ -268,26 +268,24 @@ if CONFIG[:slow_gl]
   # draws a circle in immediate mode with the given number of subdivisions.
   class GCircle
     def initialize(subdivisions = 40)
-      @subdivisions = subdivisions
-      @angles = nil
-      @vertices = {}
+      rez = Math::Tau / subdivisions
+      angles = (0..subdivisions).map { |s| s * rez }
+      @vertices = angles.map { |angle| [Math::cos(angle), Math::sin(angle)] }
       @gl_colors = { nil => [1, 1, 1, 1] }
-      @rez = Math::Tau / @subdivisions
     end
     
     def draw(x = 0, y = 0, radius = 1, color = nil)
       @gl_colors[color] ||= color.to_gl
 
-      @angles ||= (0..@subdivisions).map { |s| s * @rez }
-      @vertices[radius] ||= @angles.map do |angle| 
-          [radius * Math::cos(angle), radius * Math::sin(angle)]
-      end
-
+      glPushMatrix
+      glTranslate x, y, 0
+      glScale radius, radius, 1
       glBegin(GL_TRIANGLE_FAN)
         glColor4f(*@gl_colors[color])
-        glVertex2f(x, y) # center
-        @vertices[radius].each { |xo, yo| glVertex2f(x+xo, y+yo) }
+        glVertex2f(0, 0) # center
+        @vertices.each { |xo, yo| glVertex2f(xo, yo) }
       glEnd
+      glPopMatrix
     end
   end
   
