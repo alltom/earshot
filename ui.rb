@@ -76,8 +76,8 @@ class UI < Gosu::Window
   end
 
   def draw
-    require 'profiler'
-    Profiler__::start_profile
+    #require 'profiler'
+    #Profiler__::start_profile
     tic = Gosu::milliseconds
 
     fg = Gosu::Color.new(158, 240, 216)
@@ -226,9 +226,9 @@ class UI < Gosu::Window
 
     toc = Gosu::milliseconds
     puts "draw time: #{toc-tic}ms"
-    Profiler__::stop_profile
-    Profiler__::print_profile($stdout)
-    exit
+    #Profiler__::stop_profile
+    #Profiler__::print_profile($stdout)
+    #exit
   end
 end
 
@@ -269,6 +269,8 @@ if CONFIG[:slow_gl]
   class GCircle
     def initialize(subdivisions = 40)
       @subdivisions = subdivisions
+      @vertices = {}
+      @angles = nil
     end
     
     def draw(x = 0, y = 0, radius = 1, color = nil)
@@ -280,19 +282,15 @@ if CONFIG[:slow_gl]
         col = color.to_gl
       end
 
+      @angles ||= (0..@subdivisions).map { |s| s*rez }
+      @vertices[radius] ||= @angles.map do |angle| 
+          [radius * Math::cos(angle), radius * Math::sin(angle)]
+      end
+
       glBegin(GL_TRIANGLE_FAN)
         glColor4f(*col)
         glVertex2f(x, y) # center
-        
-        angle = 0
-        while angle + rez <= Math::Tau do
-          glColor4f(*col)
-          glVertex2f(x + radius * Math::cos(angle), y + radius * Math::sin(angle))
-          angle += rez
-        end
-        
-        glColor4f(*col)
-        glVertex2f(x + radius * Math::cos(0), y + radius * Math::sin(0))
+        @vertices[radius].each { |xo, yo| glVertex2f(x+xo, y+yo) }
       glEnd
     end
   end
