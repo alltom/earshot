@@ -179,8 +179,7 @@ class UI < Gosu::Window
     @droplet.play
   end
 
-  def draw_failed_broadcast(a)
-    loc = a.loc
+  def draw_failed_broadcast(a, loc)
     draw_circle(loc.x, loc.y, CONFIG[:transmission_radius_m], @error_color)
   end
 
@@ -223,18 +222,29 @@ class UI < Gosu::Window
 
       draw_grid
       
-      @sim.agents.each do |t|
-        loc = t.loc
-        
-        draw_agent(t, loc)
-        draw_agent_range(t, loc)
-        draw_broadcast_progress(t, loc) if t.broadcasting?
-        draw_transmission_links(t, loc) if t.broadcasting?
-        sonify_broadcast if t.broadcasting? and t.outgoing_broadcast.progress == 0
+      # merge each broadcast's failed receivers into one big array of failures
+      failed_receivers = @sim.airspace.broadcasts.inject([]) do |fold, b|
+        fold | b.failed_receivers
       end
 
-      @sim.airspace.broadcasts.each do |b|
-        b.failed_receivers.each { |r| draw_failed_broadcast(r) }
+      (@sim.agents - failed_receivers).each do |a|
+        loc = a.loc
+        
+        draw_agent(a, loc)
+        draw_agent_range(a, loc)
+        draw_broadcast_progress(a, loc) if a.broadcasting?
+        draw_transmission_links(a, loc) if a.broadcasting?
+        sonify_broadcast if a.broadcasting? and a.outgoing_broadcast.progress == 0
+      end
+
+      failed_receivers.each do |a|
+        loc = a.loc
+
+        draw_agent(a, loc)
+        draw_failed_broadcast(a, loc)
+        draw_broadcast_progress(a, loc) if a.broadcasting?
+        draw_transmission_links(a, loc) if a.broadcasting?
+        sonify_broadcast if a.broadcasting? and a.outgoing_broadcast.progress == 0
       end
 
       # return to screen coordinates
