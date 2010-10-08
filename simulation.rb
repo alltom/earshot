@@ -38,7 +38,7 @@ class Simulation
 
     # every so often, introduce one agent to another
     spork_loop do
-      Ruck::Shred.yield(rand * 5)
+      Ruck::Shred.yield(rand * 1.0/CONFIG[:intros_per_second])
       
       a = @agents.sample
       b = (@agents - [a]).sample

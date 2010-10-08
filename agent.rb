@@ -77,7 +77,7 @@ class Agent
   def start
     # every so often, broadcast stored messages
     spork_loop do
-      Ruck::Shred.yield(rand * 10)
+      Ruck::Shred.yield(rand * 1.0/CONFIG[:agent_relays_per_second])
       
       if @outgoing_broadcast.nil? && @stored_messages.length > 0
         msg = @stored_messages[rand @stored_messages.length]
@@ -89,7 +89,7 @@ class Agent
 
     # every so less often, broadcast a novel message
     spork_loop do
-      Ruck::Shred.yield(rand * 50)
+      Ruck::Shred.yield(rand * 1.0/CONFIG[:agent_novel_broadcasts_per_second])
       if @outgoing_broadcast.nil? and !@friend_uids.empty?
         target_uid = @friend_uids[rand @friend_uids.length]
         body = CONFIG[:messages][rand CONFIG[:messages].length]
@@ -104,7 +104,7 @@ class Agent
 
     # every so often, start moving towards some random destination
     spork_loop do
-      Ruck::Shred.yield(rand * 20)
+      Ruck::Shred.yield(rand * 1.0/CONFIG[:agent_moves_per_second])
 
       new_loc = Loc.new((rand * CONFIG[:width_m]).to_i, (rand * CONFIG[:height_m]).to_i) 
       speed = CONFIG[:speed_mps]

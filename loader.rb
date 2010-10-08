@@ -42,6 +42,22 @@ class Loader
     CONFIG[:title] = t
   end
 
+  def intros_per_second(rate)
+    CONFIG[:intros_per_second] = rate
+  end
+
+  def agent_moves_per_second(rate)
+    CONFIG[:agent_moves_per_second] = rate
+  end
+
+  def agent_novel_broadcasts_per_second(rate)
+    CONFIG[:agent_novel_broadcasts_per_second] = rate
+  end
+
+  def agent_relays_per_second(rate)
+    CONFIG[:agent_relays_per_second] = rate
+  end
+
   def self.load filename
     dsl = new
     dsl.instance_eval(File.read(filename), filename)

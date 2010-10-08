@@ -13,5 +13,11 @@ messages ["HELLO",
           "WHAT IS YOUR QUEST?",
           "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
 
+intros_per_second 1.0/5
+agent_moves_per_second 1.0/20
+agent_novel_broadcasts_per_second 1.0/50
+agent_relays_per_second 1.0/10
+
+
 speed 80.0/60  # in m/s (http://en.wikipedia.org/wiki/Walking#Walking_speed)
-(1..300).each { agent rand*w, rand*h }
+(1..100).each { agent rand*w, rand*h }
