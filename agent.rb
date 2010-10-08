@@ -70,22 +70,24 @@ class Agent
       return
     end
 
-    @remaining_bits = message.length
+    @outgoing_broadcast = Broadcast.new(self, loc, CONFIG[:transmission_radius_m], message)
     @xmit_shred = Ruck::Shred.new do 
-      send_bit(message)
-      Ruck::Shred.yield(CONFIG[:seconds_per_bit])
+      loop do
+        send_bit(@outgoing_broadcast)
+        Ruck::Shred.yield(CONFIG[:seconds_per_bit])
+      end
     end
     $shreduler.shredule(@xmit_shred)
   end
 
-  def send_bit(message)
-    @airspace.send_bit(self, CONFIG[:transmission_radius_m], message)
-    @remaining_bits -= 1
-    @xmit_shred.kill if @remaining_bits == 0
+  def send_bit(broadcast)
+    @airspace.send_bit(self, broadcast.range, broadcast.message)
+    broadcast.bits_left -= 1
+    transmission_finished(broadcast) if broadcast.progress == 1.0
   end
 
   def recv_bit(message)
-    puts "#{self} received a bit"
+    @last_receive_time = $shreduler.now
   end
   
   def start
@@ -129,12 +131,13 @@ class Agent
   def transmission_finished(broadcast)
     LOG.error "ERROR: finished transmitting something #{self} wasn't transmitting: #{broadcast}" if @outgoing_broadcast != broadcast
     @outgoing_broadcast = nil
+    @xmit_shred.kill
   end
   
   def broadcasting?
     !@outgoing_broadcast.nil?
   end
-  
+
   def to_s
     "<Agent:#{@uid} @ #{loc}>"
   end

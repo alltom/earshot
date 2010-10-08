@@ -233,7 +233,7 @@ class UI < Gosu::Window
         draw_agent(a, loc)
         draw_agent_range(a, loc)
         draw_broadcast_progress(a, loc) if a.broadcasting?
-        draw_transmission_links(a, loc) if a.broadcasting?
+        #draw_transmission_links(a, loc) if a.broadcasting?
         sonify_broadcast if a.broadcasting? and a.outgoing_broadcast.progress == 0
       end
 
