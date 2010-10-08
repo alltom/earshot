@@ -65,13 +65,27 @@ class Agent
   end
   
   def broadcast_message(message)
-    if @outgoing_broadcast.nil?
-      broadcast = Broadcast.new(self, loc, CONFIG[:transmission_radius_m], message)
-      @airspace.send_broadcast(broadcast)
-      @outgoing_broadcast = broadcast
-    else
+    unless @outgoing_broadcast.nil?
       LOG.error "#{self} cannot broadcast more than one message at once!"
+      return
     end
+
+    @remaining_bits = message.length
+    @xmit_shred = Ruck::Shred.new do 
+      send_bit(message)
+      Ruck::Shred.yield(CONFIG[:seconds_per_bit])
+    end
+    $shreduler.shredule(@xmit_shred)
+  end
+
+  def send_bit(message)
+    @airspace.send_bit(self, CONFIG[:transmission_radius_m], message)
+    @remaining_bits -= 1
+    @xmit_shred.kill if @remaining_bits == 0
+  end
+
+  def recv_bit(message)
+    puts "#{self} received a bit"
   end
   
   def start
@@ -81,9 +95,8 @@ class Agent
       
       if @outgoing_broadcast.nil? && @stored_messages.length > 0
         msg = @stored_messages[rand @stored_messages.length]
-        broadcast = broadcast_message(msg)
+        broadcast_message(msg)
         EARLOG::relay(self, msg)
-        Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
       end
     end
 
@@ -96,8 +109,7 @@ class Agent
         msg = Message.new(@uid, target_uid, body)
         @stored_messages << msg
         EARLOG::xmit(self, target_uid, msg)
-        broadcast = broadcast_message(msg)
-        Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
+        broadcast_message(msg)
       end
     end
 
@@ -119,43 +131,11 @@ class Agent
     @outgoing_broadcast = nil
   end
   
-  def received_broadcast(broadcast)
-    if broadcast.message.target_uid == @uid
-      LOG.info "#{self} received #{broadcast.message} addressed to it! Hooray!"
-      EARLOG::recv(self, broadcast.message)
-    else
-      LOG.info "#{self} received #{broadcast}"
-    end
-      
-    @stored_messages << broadcast.message unless @stored_messages.include? broadcast.message
-  end
-  
   def broadcasting?
     !@outgoing_broadcast.nil?
   end
   
   def to_s
     "<Agent:#{@uid} @ #{loc}>"
-  end
-end
-
-class ChattyAgent < Agent
-  def start
-    super
-    
-    # send one original message in the first few seconds
-    spork do
-      Ruck::Shred.yield(rand * 3)
-      
-      if @outgoing_broadcast.nil? and !@friend_uids.empty?
-        target_uid = @friend_uids[rand @friend_uids.length]
-        body = CONFIG[:messages][rand CONFIG[:messages].length]
-        msg = Message.new(@uid, target_uid, body)
-        @stored_messages << msg
-        EARLOG::xmit(self, target_uid, msg)
-        broadcast = broadcast_message(msg)
-        Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
-      end
-    end
   end
 end

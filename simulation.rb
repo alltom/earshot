@@ -19,7 +19,7 @@ class Simulation
 
   def add_agent(loc=nil)
     loc ||= Loc.new((rand * CONFIG[:width_m]).to_i, (rand * CONFIG[:height_m]).to_i)
-    agent = ChattyAgent.new(loc, @airspace)
+    agent = Agent.new(loc, @airspace)
     EARLOG.born(agent)
     @agents << agent
     @airspace << agent
@@ -33,7 +33,6 @@ class Simulation
   
   def start
     @start_time = Time.now
-    @airspace.start
     @agents.each { |t| t.start }
 
     # every so often, introduce one agent to another
