@@ -223,9 +223,7 @@ class UI < Gosu::Window
       draw_grid
       
       # merge each broadcast's failed receivers into one big array of failures
-      failed_receivers = @sim.airspace.broadcasts.inject([]) do |fold, b|
-        fold | b.failed_receivers
-      end
+      failed_receivers = @sim.airspace.collisions
 
       (@sim.agents - failed_receivers).each do |a|
         loc = a.loc
@@ -243,7 +241,7 @@ class UI < Gosu::Window
         draw_agent(a, loc)
         draw_failed_broadcast(a, loc)
         draw_broadcast_progress(a, loc) if a.broadcasting?
-        draw_transmission_links(a, loc) if a.broadcasting?
+        #draw_transmission_links(a, loc) if a.broadcasting?
         sonify_broadcast if a.broadcasting? and a.outgoing_broadcast.progress == 0
       end
 
