@@ -1,5 +1,4 @@
-
-MIN_SPEED, MAX_SPEED = 5, 20
+SAFETY_FACTOR = 2 # this controls how long an agent waits after receiving a bit from someone else before starting a broadcast
 
 class Agent
   attr_accessor :airspace
@@ -20,6 +19,7 @@ class Agent
     @stored_messages = []
     @friend_uids = []
     @outgoing_broadcast = nil
+    @last_receive_time = -1.0/0.0
   end
 
   def meet(other)
@@ -89,13 +89,17 @@ class Agent
   def recv_bit(message)
     @last_receive_time = $shreduler.now
   end
+
+  def air_clear?
+    ($shreduler.now - @last_receive_time) > CONFIG[:seconds_per_bit]*SAFETY_FACTOR
+  end
   
   def start
     # every so often, broadcast stored messages
     spork_loop do
       Ruck::Shred.yield(rand * 10)
       
-      if @outgoing_broadcast.nil? && @stored_messages.length > 0
+      if @outgoing_broadcast.nil? && @stored_messages.length > 0 && air_clear?
         msg = @stored_messages[rand @stored_messages.length]
         broadcast_message(msg)
         EARLOG::relay(self, msg)

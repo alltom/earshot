@@ -42,7 +42,7 @@ class UI < Gosu::Window
     tic = Gosu::milliseconds
     @sim.advance unless @sim.nil?
     toc = Gosu::milliseconds
-    #puts "update time: #{toc-tic}ms"
+    puts "update time: #{toc-tic}ms"
   end
 
   def needs_cursor?
@@ -253,7 +253,7 @@ class UI < Gosu::Window
     end
 
     toc = Gosu::milliseconds
-    #puts "draw time: #{toc-tic}ms"
+    puts "draw time: #{toc-tic}ms"
   end
 end
 
