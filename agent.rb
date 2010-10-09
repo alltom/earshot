@@ -1,6 +1,94 @@
 SAFETY_FACTOR = 2 # this controls how long an agent waits after receiving a bit from someone else before starting a broadcast
 
-class Agent
+# This class implements the networking protocol with an internal state machine.
+# The protocol is big-endian (MSB first)
+
+class ProtocolUser
+  START = '10101010'
+  NUM_START_BITS = 8
+  NUM_LENGTH_BITS = 8
+  NUM_CHECKSUM_BITS = 8
+  
+  def initialize
+    idle
+  end
+
+  # In this state, it expects to receive the START sequence
+  def idle
+    @state = :idle
+    @i = 0
+  end
+
+  def read_length
+    @state = :reading_length
+    @i = 0
+    @bits = ' ' * NUM_LENGTH_BITS
+  end
+
+  def read_checksum
+    @state = :read_checksum
+    @i = 0
+    @bits = ' ' * NUM_CHECKSUM_BITS
+  end
+
+  def read_message
+    @state = :read_message
+    @i = 0
+    @bits = ' ' * @length
+  end
+
+  def checksum(message)
+    # TODO: implement a better checksum algorithm. maybe http://en.wikipedia.org/wiki/Pearson_hashing
+    num_ones = message.count('1')
+    sprintf("%0#{NUM_CHECKSUM_BITS}d", num_ones.to_s(2)[0..NUM_CHECKSUM_BITS])
+  end
+
+  def store_message(bits)
+    puts "#{self} received a message: #{bits}"
+  end
+
+  def recv_bit(bit)
+    unless ['0', '1'].member?(bit)
+      LOG.error "#{self} received an invalid bit: #{bit}"
+      return
+    end
+
+    case @state
+    when :idle
+      # If there's been a deviation from the protocol, start over
+      idle if bit != START[@i]
+      @i += 1
+      read_length if i == NUM_START_BITS
+    when :reading_length
+      @bits[@i] = bit
+      if i == NUM_LENGTH_BITS
+        @length = @bits.to_i(2)
+        read_checksum
+      end
+    when :reading_checksum
+      @bits[@i] = bit
+      if i == NUM_LENGTH_BITS
+        @checksum = @bits.to_i(2)
+        read_message
+      end
+    when :reading_message
+      @bits[@i] = bit
+      if i == @length
+        if @checksum == checksum(@bits)
+          store_message(@bits)
+        else
+          # the message was corrupted somehow
+        end
+        
+        idle
+      end
+    when :sending
+    else
+    end
+  end
+end
+
+class Agent < ProtocolUser
   attr_accessor :airspace
   attr_accessor :outgoing_broadcast
   attr_reader   :uid
@@ -81,12 +169,13 @@ class Agent
   end
 
   def send_bit(broadcast)
-    @airspace.send_bit(self, broadcast.range, broadcast.message)
-    broadcast.bits_left -= 1
+    @airspace.send_bit(self, broadcast.range, broadcast.next_bit)
     transmission_finished(broadcast) if broadcast.progress == 1.0
   end
 
-  def recv_bit(message)
+  def recv_bit(bit)
+    super(bit)
+
     @last_receive_time = $shreduler.now
   end
 
@@ -111,8 +200,9 @@ class Agent
       Ruck::Shred.yield(rand * 50)
       if @outgoing_broadcast.nil? and !@friend_uids.empty?
         target_uid = @friend_uids[rand @friend_uids.length]
-        body = CONFIG[:messages][rand CONFIG[:messages].length]
-        msg = Message.new(@uid, target_uid, body)
+        body_string = CONFIG[:messages][rand CONFIG[:messages].length]
+        body_binary = body_string.each_byte.map { |b| b.to_s(2) }.join('') 
+        msg = Message.new(@uid, target_uid, body_binary)
         @stored_messages << msg
         EARLOG::xmit(self, target_uid, msg)
         broadcast_message(msg)

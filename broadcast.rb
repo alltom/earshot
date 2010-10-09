@@ -14,8 +14,16 @@ class Broadcast
     @range = range
     @message = message
     @bits_left = message.length
+    @cur_bit = 0
     @recievers = []
     @failed_receivers = []
+  end
+
+  def next_bit
+    b = @message.text[@cur_bit]
+    @cur_bit += 1
+    @bits_left -= 1
+    b
   end
   
   def to_s

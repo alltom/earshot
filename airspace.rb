@@ -20,7 +20,7 @@ class Airspace
     @receivers << receiver
   end
 
-  def send_bit(sender, radius, message)
+  def send_bit(sender, radius, bit)
     receivers = @receivers.select { |r| r.loc.dist(sender.loc) <= radius } - [sender]
     collision = false
     receivers.each do |r|
@@ -28,7 +28,7 @@ class Airspace
         collision = true 
         @collision_agents << r unless @collision_agents.member? r
       end
-      r.recv_bit(message)
+      r.recv_bit(bit)
     end
 
     # if this send caused a collision, flag this sender as a collision, but if
