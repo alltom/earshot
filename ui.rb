@@ -36,6 +36,12 @@ class UI < Gosu::Window
     @error_color = Gosu::Color.new(10, 255, 60, 32)
     @bg_color = Gosu::Color.new(40, 40, 40)
     @agent_color = Gosu::Color.new(160, 240, 234)
+
+    @state_idle_color = Gosu::Color.new(20, 158, 240, 216)
+    @state_length_color = Gosu::Color.new(100, 255, 0, 0)
+    @state_checksum_color = Gosu::Color.new(100, 0, 255, 0)
+    @state_message_color = Gosu::Color.new(100, 0, 0, 255)
+    @state_sending_color = Gosu::Color.new(20, 158, 240, 216)
   end
 
   def update
@@ -166,12 +172,24 @@ class UI < Gosu::Window
 
   def draw_agent_range(a, loc)
     r = CONFIG[:transmission_radius_m] 
-    draw_circle(loc.x, loc.y, r, @range_color)
+    case a.state
+    when :idle
+      color = @state_idle_color
+    when :reading_length
+      color = @state_length_color
+    when :reading_checksum
+      color = @state_checksum_color
+    when :reading_message
+      color = @state_message_color
+    when :sending
+      color = @state_sending_color
+    end
+    draw_circle(loc.x, loc.y, r, color)
   end
 
   def draw_broadcast_progress(a, loc)
     r = CONFIG[:transmission_radius_m] 
-    angle = a.outgoing_broadcast.progress * Math::Tau
+    angle = a.broadcast_progress * Math::Tau
     @arc.draw loc.x, loc.y, r, angle, @fg_color
   end
 
@@ -232,7 +250,7 @@ class UI < Gosu::Window
         draw_agent_range(a, loc)
         draw_broadcast_progress(a, loc) if a.broadcasting?
         #draw_transmission_links(a, loc) if a.broadcasting?
-        sonify_broadcast if a.broadcasting? and a.outgoing_broadcast.progress == 0
+        sonify_broadcast if a.broadcasting? and a.broadcast_progress == 0
       end
 
       failed_receivers.each do |a|
@@ -242,7 +260,7 @@ class UI < Gosu::Window
         draw_failed_broadcast(a, loc)
         draw_broadcast_progress(a, loc) if a.broadcasting?
         #draw_transmission_links(a, loc) if a.broadcasting?
-        sonify_broadcast if a.broadcasting? and a.outgoing_broadcast.progress == 0
+        sonify_broadcast if a.broadcasting? and a.broadcast_progress == 0
       end
 
       # return to screen coordinates

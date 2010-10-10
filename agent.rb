@@ -5,6 +5,8 @@
 class Transmitter
   attr_accessor :airspace
   attr_reader   :loc
+  attr_accessor :outgoing_broadcast
+  attr_reader   :state
 
   def initialize(loc, airspace)
     @loc = loc
@@ -41,13 +43,13 @@ class Transmitter
   end
 
   def read_checksum
-    @state = :read_checksum
+    @state = :reading_checksum
     @i = 0
     @bits = ' ' * NUM_CHECKSUM_BITS
   end
 
   def read_message
-    @state = :read_message
+    @state = :reading_message
     @i = 0
     @bits = ' ' * @length
   end
@@ -60,6 +62,8 @@ class Transmitter
   end
 
   def store_message(bits)
+    message = nil
+    EARLOG::recv(self, message)
     puts "#{self} received a message: #{bits}"
   end
 
@@ -79,19 +83,23 @@ class Transmitter
       read_length if @i == NUM_START_BITS
     when :reading_length
       @bits[@i] = bit
+      @i += 1
       if @i == NUM_LENGTH_BITS
         @length = @bits.to_i(2)
         read_checksum
       end
     when :reading_checksum
       @bits[@i] = bit
-      if @i == NUM_LENGTH_BITS
-        @checksum = @bits.to_i(2)
+      @i += 1
+      if @i == NUM_CHECKSUM_BITS
+        @checksum = @bits
         read_message
       end
     when :reading_message
       @bits[@i] = bit
+      @i += 1
       if @i == @length
+        puts "#{@checksum} ?= #{checksum(@bits)}"
         if @checksum == checksum(@bits)
           store_message(@bits)
         else
@@ -101,13 +109,13 @@ class Transmitter
         idle
       end
     when :sending
+      # collision
     else
     end
   end
 
-  def send_bit(broadcast)
-    @airspace.send_bit(self, broadcast.range, broadcast.next_bit)
-    transmission_finished(broadcast) if broadcast.progress == 1.0
+  def send_bit(bit)
+    @airspace.send_bit(self, CONFIG[:transmission_radius_m], bit)
   end
 
   def broadcast_message(message)
@@ -116,26 +124,40 @@ class Transmitter
       return
     end
 
-    @outgoing_broadcast = Broadcast.new(self, loc, CONFIG[:transmission_radius_m], message)
+    @state = :sending
+
+    # marshall message into a bit string:
+    @bits = START
+    @bits += sprintf("%0#{NUM_LENGTH_BITS}d", message.length.to_s(2)[0..NUM_LENGTH_BITS])
+    @bits += checksum(message.text)
+    @bits += message.text
+    @i = 0
+
     @xmit_shred = Ruck::Shred.new do 
       loop do
-        send_bit(@outgoing_broadcast)
+        send_bit(@bits[@i])
+        @i += 1
+        transmission_finished if @i == @bits.length
         Ruck::Shred.yield(CONFIG[:seconds_per_bit])
       end
     end
     $shreduler.shredule(@xmit_shred)
   end
 
-  def transmission_finished(broadcast)
-    LOG.error "ERROR: finished transmitting something #{self} wasn't transmitting: #{broadcast}" if @outgoing_broadcast != broadcast
-    @outgoing_broadcast = nil
+  def transmission_finished
     @xmit_shred.kill
+    idle
   end
   
   def broadcasting?
-    !@outgoing_broadcast.nil?
+    @state == :sending
   end
 
+  def broadcast_progress
+    return 0 unless broadcasting?
+
+    1.0 * @i / @bits.length
+  end
 
   def air_clear?
     ($shreduler.now - @last_receive_time) > CONFIG[:seconds_per_bit]*SAFETY_FACTOR
@@ -146,7 +168,6 @@ end
 # This class models an Agent that can meet and communicate with other Agents.
 
 class Agent < Transmitter
-  attr_accessor :outgoing_broadcast
   attr_reader   :uid
   
   def self.uid
@@ -170,7 +191,7 @@ class Agent < Transmitter
     spork_loop do
       Ruck::Shred.yield(rand * 10)
       
-      if @outgoing_broadcast.nil? && @stored_messages.length > 0 && air_clear?
+      if !broadcasting? && @stored_messages.length > 0 && air_clear?
         msg = @stored_messages[rand @stored_messages.length]
         broadcast_message(msg)
         EARLOG::relay(self, msg)
@@ -180,7 +201,7 @@ class Agent < Transmitter
     # every so less often, broadcast a novel message
     spork_loop do
       Ruck::Shred.yield(rand * 50)
-      if @outgoing_broadcast.nil? and !@friend_uids.empty?
+      if !broadcasting? and !@friend_uids.empty?
         target_uid = @friend_uids[rand @friend_uids.length]
         body_string = CONFIG[:messages][rand CONFIG[:messages].length]
         body_binary = body_string.each_byte.map { |b| b.to_s(2) }.join('') 
