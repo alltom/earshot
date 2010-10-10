@@ -1,5 +1,4 @@
 NUM_UID_BITS = 128
-NUM_UID_BITS = 12
 
 class Message
   attr_reader :uid

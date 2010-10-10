@@ -88,7 +88,6 @@ class Transmitter
     when :idle
       # If there's been a deviation from the protocol, start over
       if bit != START[@i]
-        puts 'invalid start sequence'
         idle
       end
       @i += 1
@@ -121,8 +120,7 @@ class Transmitter
         idle
       end
     when :sending
-      # collision
-      puts 'collision'
+      #puts 'collision'
     else
     end
   end
