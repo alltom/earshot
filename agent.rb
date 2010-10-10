@@ -13,6 +13,8 @@ class Transmitter
     @stored_messages = []
     @outgoing_broadcast = nil
 
+    @xmit_shred = nil
+
     @state = nil
     @i = 0
     @bits = nil
