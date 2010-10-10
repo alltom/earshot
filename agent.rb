@@ -1,4 +1,17 @@
+# Protocol-related constants
+START = '10101010'
+NUM_START_BITS = 8
+NUM_LENGTH_BITS = 16
+NUM_CHECKSUM_BITS = 16
+SAFETY_FACTOR = 2 # this controls how long an agent waits after receiving a bit from someone else before starting a broadcast
 
+def checksum(message)
+  # TODO: implement a better checksum algorithm. maybe http://en.wikipedia.org/wiki/Pearson_hashing
+  num_ones = message.count('1')
+  sprintf("%0#{NUM_CHECKSUM_BITS}d", num_ones.to_s(2)[0...NUM_CHECKSUM_BITS])
+end
+
+  
 # This class models a device that communicates using the networking protocol.
 # The protocol is big-endian (MSB first)
 
@@ -7,10 +20,16 @@ class Transmitter
   attr_reader   :loc
   attr_accessor :outgoing_broadcast
   attr_reader   :state
-
+  attr_reader   :uid
+  
+  def self.uid
+    (@uuid_generator ||= UIDGenerator.new("AGENT")).next
+  end
+ 
   def initialize(loc, airspace)
     @loc = loc
     @airspace = airspace
+    @uid = Agent.uid
     @last_receive_time = -1.0/0.0
     @stored_messages = []
     @outgoing_broadcast = nil
@@ -22,13 +41,6 @@ class Transmitter
     @bits = nil
     idle
   end
-
-  # Protocol-related constants
-  START = '10101010'
-  NUM_START_BITS = 8
-  NUM_LENGTH_BITS = 16
-  NUM_CHECKSUM_BITS = 8
-  SAFETY_FACTOR = 2 # this controls how long an agent waits after receiving a bit from someone else before starting a broadcast
 
   # State-change functions
   def idle
@@ -54,17 +66,14 @@ class Transmitter
     @bits = ' ' * @length
   end
 
-
-  def checksum(message)
-    # TODO: implement a better checksum algorithm. maybe http://en.wikipedia.org/wiki/Pearson_hashing
-    num_ones = message.count('1')
-    sprintf("%0#{NUM_CHECKSUM_BITS}d", num_ones.to_s(2)[0..NUM_CHECKSUM_BITS])
-  end
-
   def store_message(bits)
-    message = nil
-    EARLOG::recv(self, message)
-    puts "#{self} received a message: #{bits}"
+    message = Message::from_bits(bits)
+    if message.target_uid == self.uid
+      EARLOG::recv(self, message) unless @stored_messages.member? message
+    else
+      puts 'got a message for someone else'
+      puts "me: #{@uid}\ntarget: #{message.target_uid}"
+    end
   end
 
   def recv_bit(bit)
@@ -78,7 +87,10 @@ class Transmitter
     case @state
     when :idle
       # If there's been a deviation from the protocol, start over
-      idle if bit != START[@i]
+      if bit != START[@i]
+        puts 'invalid start sequence'
+        idle
+      end
       @i += 1
       read_length if @i == NUM_START_BITS
     when :reading_length
@@ -98,11 +110,11 @@ class Transmitter
     when :reading_message
       @bits[@i] = bit
       @i += 1
-      if @i == @length
-        puts "#{@checksum} ?= #{checksum(@bits)}"
+      if @i == NUM_UID_BITS*3 + @length
         if @checksum == checksum(@bits)
           store_message(@bits)
         else
+          puts "checksum failed #{@checksum} != #{checksum(@bits)}"
           # the message was corrupted somehow
         end
         
@@ -110,6 +122,7 @@ class Transmitter
       end
     when :sending
       # collision
+      puts 'collision'
     else
     end
   end
@@ -127,10 +140,7 @@ class Transmitter
     @state = :sending
 
     # marshall message into a bit string:
-    @bits = START
-    @bits += sprintf("%0#{NUM_LENGTH_BITS}d", message.length.to_s(2)[0..NUM_LENGTH_BITS])
-    @bits += checksum(message.text)
-    @bits += message.text
+    @bits = message.to_bits
     @i = 0
 
     @xmit_shred = Ruck::Shred.new do 
@@ -168,15 +178,9 @@ end
 # This class models an Agent that can meet and communicate with other Agents.
 
 class Agent < Transmitter
-  attr_reader   :uid
-  
-  def self.uid
-    (@uuid_generator ||= UIDGenerator.new("AGENT")).next
-  end
-  
+ 
   def initialize(loc, airspace)
     super(loc, airspace)
-    @uid = Agent.uid
     @friend_uids = []
   end
 
@@ -204,7 +208,7 @@ class Agent < Transmitter
       if !broadcasting? and !@friend_uids.empty?
         target_uid = @friend_uids[rand @friend_uids.length]
         body_string = CONFIG[:messages][rand CONFIG[:messages].length]
-        body_binary = body_string.each_byte.map { |b| b.to_s(2) }.join('') 
+        body_binary = body_string.each_byte.map { |b| sprintf('%08d', b.to_s(2)) }.join('') 
         msg = Message.new(@uid, target_uid, body_binary)
         @stored_messages << msg
         EARLOG::xmit(self, target_uid, msg)

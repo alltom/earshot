@@ -13,8 +13,7 @@ class EarLog
   end
 
   def recv(agent, message)
-    #@outfile.puts "#{$shreduler.now}\trecv\t#{agent.uid}\t#{message.uid}"
-    @outfile.puts "#{$shreduler.now}\trecv\t#{agent.uid}\tMESSAGE UID GOES HERE"
+    @outfile.puts "#{$shreduler.now}\trecv\t#{agent.uid}\t#{message.uid}"
   end
 
   def move(agent, new_x, new_y, speed)
