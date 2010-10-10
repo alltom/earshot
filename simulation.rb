@@ -19,7 +19,7 @@ class Simulation
 
   def add_agent(loc=nil)
     loc ||= Loc.new((rand * CONFIG[:width_m]).to_i, (rand * CONFIG[:height_m]).to_i)
-    agent = Agent.new(loc, @airspace)
+    agent = MovingAgent.new(loc, @airspace)
     EARLOG.born(agent)
     @agents << agent
     @airspace << agent
