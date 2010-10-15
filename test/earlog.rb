@@ -39,6 +39,7 @@ class Shreduler
   def now() NOW end
 end
 
+
 class Tester < Test::Unit::TestCase
   def setup
     @log = Logfile.new
