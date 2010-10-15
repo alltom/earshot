@@ -1,7 +1,6 @@
 require "./loc"
 require "./airspace"
 require "./agent"
-require "./broadcast"
 require "./simulation"
 require "./uid"
 require "./message"

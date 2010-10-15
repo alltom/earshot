@@ -1,31 +1,235 @@
+# Protocol-related constants
+START = '10101010'
+NUM_START_BITS = 8
+NUM_LENGTH_BITS = 16
+NUM_CHECKSUM_BITS = 16
+SAFETY_FACTOR = 2 # this controls how long an agent waits after receiving a bit from someone else before starting a broadcast
 
-MIN_SPEED, MAX_SPEED = 5, 20
+def checksum(message)
+  # TODO: implement a better checksum algorithm. maybe http://en.wikipedia.org/wiki/Pearson_hashing
+  num_ones = message.count('1')
+  sprintf("%0#{NUM_CHECKSUM_BITS}d", num_ones.to_s(2)[0...NUM_CHECKSUM_BITS])
+end
 
-class Agent
+  
+# This class models a device that communicates using the networking protocol.
+# The protocol is big-endian (MSB first)
+
+class Transmitter
   attr_accessor :airspace
-  attr_accessor :outgoing_broadcast
+  attr_reader   :loc
+  attr_reader   :state
   attr_reader   :uid
   
   def self.uid
     (@uuid_generator ||= UIDGenerator.new("AGENT")).next
   end
-  
+ 
   def initialize(loc, airspace)
-    @uid = Agent.uid
-    @old_loc = loc
-    @new_loc = nil    # the agent's new destination
-    @speed = nil      # the agent's speed
-    @move_start = nil # the time at which the agent started moving
+    @loc = loc
     @airspace = airspace
+    @uid = Agent.uid
+    @last_receive_time = -1.0/0.0
     @stored_messages = []
+
+    @xmit_shred = nil
+
+    @state = nil
+    @i = 0
+    @bits = nil
+    idle
+  end
+
+  # State-change functions
+  def idle
+    @state = :idle
+    @i = 0
+  end
+
+  def read_length
+    @state = :reading_length
+    @i = 0
+    @bits = ' ' * NUM_LENGTH_BITS
+  end
+
+  def read_checksum
+    @state = :reading_checksum
+    @i = 0
+    @bits = ' ' * NUM_CHECKSUM_BITS
+  end
+
+  def read_message
+    @state = :reading_message
+    @i = 0
+    @bits = ' ' * @length
+  end
+
+  def store_message(bits)
+    message = Message::from_bits(bits)
+    if message.target_uid == self.uid
+      EARLOG::recv(self, message) unless @stored_messages.member? message
+    else
+      LOG.info "#{self} received a message for someone else"
+    end
+  end
+
+  def recv_bit(bit)
+    @last_receive_time = $shreduler.now
+
+    unless ['0', '1'].member?(bit)
+      LOG.error "#{self} received an invalid bit: #{bit}"
+      return
+    end
+
+    idle if recv_timeout?
+
+    case @state
+    when :idle
+      if bit != START[@i]
+        LOG.info "#{self} received an unexpected bit; idling..."
+        idle
+      else
+        @i += 1
+        read_length if @i == NUM_START_BITS
+      end
+    when :reading_length
+      @bits[@i] = bit
+      @i += 1
+      if @i == NUM_LENGTH_BITS
+        @length = @bits.to_i(2)
+        read_checksum
+      end
+    when :reading_checksum
+      @bits[@i] = bit
+      @i += 1
+      if @i == NUM_CHECKSUM_BITS
+        @checksum = @bits
+        read_message
+      end
+    when :reading_message
+      @bits[@i] = bit
+      @i += 1
+      if @i == @length
+        if @checksum == checksum(@bits)
+          store_message(@bits)
+        else
+          puts "checksum failed #{@checksum} != #{checksum(@bits)}"
+          # the message was corrupted somehow
+        end
+        
+        idle
+      end
+    when :sending
+      #puts 'collision'
+    else
+    end
+  end
+
+  def send_bit(bit)
+    @airspace.send_bit(self, CONFIG[:transmission_radius_m], bit)
+  end
+
+  def broadcast_message(message)
+    @state = :sending
+
+    # marshall message into a bit string:
+    mbits = message.to_bits
+    @bits = START + sprintf("%0#{NUM_LENGTH_BITS}d", mbits.length.to_s(2)) + checksum(mbits) + mbits
+    @i = 0
+
+    @xmit_shred = Ruck::Shred.new do 
+      loop do
+        send_bit(@bits[@i])
+        @i += 1
+        if @i == @bits.length
+          transmission_finished
+          break
+        end
+        Ruck::Shred.yield(CONFIG[:seconds_per_bit])
+      end
+    end
+    $shreduler.shredule(@xmit_shred)
+  end
+
+  def transmission_finished
+    @xmit_shred.kill unless @xmit_shred.nil?
+    idle
+  end
+  
+  def broadcasting?
+    @state == :sending
+  end
+
+  def broadcast_progress
+    return 0 unless broadcasting?
+
+    1.0 * @i / @bits.length
+  end
+
+  def air_clear?
+    ($shreduler.now - @last_receive_time) > CONFIG[:seconds_per_bit]*SAFETY_FACTOR
+  end
+
+  def recv_timeout?
+    ($shreduler.now - @last_receive_time) > CONFIG[:seconds_per_bit]*SAFETY_FACTOR
+  end
+end
+
+
+# This class models an Agent that can meet and communicate with other Agents.
+
+class Agent < Transmitter
+ 
+  def initialize(loc, airspace)
+    super(loc, airspace)
     @friend_uids = []
-    @outgoing_broadcast = nil
   end
 
   def meet(other)
     return if @friend_uids.include? other.uid
     @friend_uids << other.uid
     LOG.info "#{self} met #{other}"
+  end
+  
+  def start
+    # every so often, broadcast stored messages
+    spork_loop do
+      Ruck::Shred.yield(rand * 1.0/CONFIG[:agent_relays_per_second])
+      
+      if !broadcasting? && @stored_messages.length > 0 && air_clear?
+        msg = @stored_messages[rand @stored_messages.length]
+        broadcast_message(msg)
+        EARLOG::relay(self, msg)
+      end
+    end
+
+    # every so less often, broadcast a novel message
+    spork_loop do
+      Ruck::Shred.yield(rand * 1.0/CONFIG[:agent_novel_broadcasts_per_second])
+      if !broadcasting? and !@friend_uids.empty? && air_clear?
+        target_uid = @friend_uids[rand @friend_uids.length]
+        body = CONFIG[:messages][rand CONFIG[:messages].length]
+        msg = Message.new(@uid, target_uid, body)
+        @stored_messages << msg
+        EARLOG::xmit(self, target_uid, msg)
+        broadcast_message(msg)
+      end
+    end
+  end
+  
+  def to_s
+    "<Agent:#{@uid} @ #{loc}>"
+  end
+end
+
+
+class MovingAgent < Agent
+  def initialize(loc, airspace)
+    super(loc, airspace)
+    @old_loc = loc
+    @new_loc = nil    # the agent's new destination
+    @speed = nil      # the agent's speed
+    @move_start = nil # the time at which the agent started moving
   end
 
   def loc
@@ -64,43 +268,8 @@ class Agent
     @move_start = $shreduler.now
   end
   
-  def broadcast_message(message)
-    if @outgoing_broadcast.nil?
-      broadcast = Broadcast.new(self, loc, CONFIG[:transmission_radius_m], message)
-      @airspace.send_broadcast(broadcast)
-      @outgoing_broadcast = broadcast
-    else
-      LOG.error "#{self} cannot broadcast more than one message at once!"
-    end
-  end
-  
   def start
-    # every so often, broadcast stored messages
-    spork_loop do
-      Ruck::Shred.yield(rand * 1.0/CONFIG[:agent_relays_per_second])
-      
-      if @outgoing_broadcast.nil? && @stored_messages.length > 0
-        msg = @stored_messages[rand @stored_messages.length]
-        broadcast = broadcast_message(msg)
-        EARLOG::relay(self, msg)
-        Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
-      end
-    end
-
-    # every so less often, broadcast a novel message
-    spork_loop do
-      Ruck::Shred.yield(rand * 1.0/CONFIG[:agent_novel_broadcasts_per_second])
-      if @outgoing_broadcast.nil? and !@friend_uids.empty?
-        target_uid = @friend_uids[rand @friend_uids.length]
-        body = CONFIG[:messages][rand CONFIG[:messages].length]
-        msg = Message.new(@uid, target_uid, body)
-        @stored_messages << msg
-        EARLOG::xmit(self, target_uid, msg)
-        broadcast = broadcast_message(msg)
-        Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
-      end
-    end
-
+    super
 
     # every so often, start moving towards some random destination
     spork_loop do
@@ -111,51 +280,6 @@ class Agent
       move(new_loc, speed)
       #LOG.info "#{self} started moving to #{new_loc} with speed #{speed}"
       EARLOG::move(self, new_loc.x, new_loc.y, speed)
-    end
-  end
-  
-  def transmission_finished(broadcast)
-    LOG.error "ERROR: finished transmitting something #{self} wasn't transmitting: #{broadcast}" if @outgoing_broadcast != broadcast
-    @outgoing_broadcast = nil
-  end
-  
-  def received_broadcast(broadcast)
-    if broadcast.message.target_uid == @uid
-      LOG.info "#{self} received #{broadcast.message} addressed to it! Hooray!"
-      EARLOG::recv(self, broadcast.message)
-    else
-      LOG.info "#{self} received #{broadcast}"
-    end
-      
-    @stored_messages << broadcast.message unless @stored_messages.include? broadcast.message
-  end
-  
-  def broadcasting?
-    !@outgoing_broadcast.nil?
-  end
-  
-  def to_s
-    "<Agent:#{@uid} @ #{loc}>"
-  end
-end
-
-class ChattyAgent < Agent
-  def start
-    super
-    
-    # send one original message in the first few seconds
-    spork do
-      Ruck::Shred.yield(rand * 3)
-      
-      if @outgoing_broadcast.nil? and !@friend_uids.empty?
-        target_uid = @friend_uids[rand @friend_uids.length]
-        body = CONFIG[:messages][rand CONFIG[:messages].length]
-        msg = Message.new(@uid, target_uid, body)
-        @stored_messages << msg
-        EARLOG::xmit(self, target_uid, msg)
-        broadcast = broadcast_message(msg)
-        Ruck::Shred.yield(CONFIG[:seconds_per_bit] * broadcast.message.length)
-      end
     end
   end
 end

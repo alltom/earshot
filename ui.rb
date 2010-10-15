@@ -36,13 +36,19 @@ class UI < Gosu::Window
     @error_color = Gosu::Color.new(10, 255, 60, 32)
     @bg_color = Gosu::Color.new(40, 40, 40)
     @agent_color = Gosu::Color.new(160, 240, 234)
+
+    @state_idle_color = Gosu::Color.new(20, 158, 240, 216)
+    @state_length_color = Gosu::Color.new(40, 255, 249, 119)
+    @state_checksum_color = Gosu::Color.new(40, 255, 194, 88)
+    @state_message_color = Gosu::Color.new(40, 232, 152, 92)
+    @state_sending_color = Gosu::Color.new(20, 158, 240, 216)
   end
 
   def update
     tic = Gosu::milliseconds
     @sim.advance unless @sim.nil?
     toc = Gosu::milliseconds
-    puts "update time: #{toc-tic}ms"
+    #puts "update time: #{toc-tic}ms"
   end
 
   def needs_cursor?
@@ -166,12 +172,24 @@ class UI < Gosu::Window
 
   def draw_agent_range(a, loc)
     r = CONFIG[:transmission_radius_m] 
-    draw_circle(loc.x, loc.y, r, @range_color)
+    case a.state
+    when :idle
+      color = @state_idle_color
+    when :reading_length
+      color = @state_length_color
+    when :reading_checksum
+      color = @state_checksum_color
+    when :reading_message
+      color = @state_message_color
+    when :sending
+      color = @state_sending_color
+    end
+    draw_circle(loc.x, loc.y, r, color)
   end
 
   def draw_broadcast_progress(a, loc)
     r = CONFIG[:transmission_radius_m] 
-    angle = a.outgoing_broadcast.progress * Math::Tau
+    angle = a.broadcast_progress * Math::Tau
     @arc.draw loc.x, loc.y, r, angle, @fg_color
   end
 
@@ -223,9 +241,7 @@ class UI < Gosu::Window
       draw_grid
       
       # merge each broadcast's failed receivers into one big array of failures
-      failed_receivers = @sim.airspace.broadcasts.inject([]) do |fold, b|
-        fold | b.failed_receivers
-      end
+      failed_receivers = @sim.airspace.collisions
 
       (@sim.agents - failed_receivers).each do |a|
         loc = a.loc
@@ -233,8 +249,8 @@ class UI < Gosu::Window
         draw_agent(a, loc)
         draw_agent_range(a, loc)
         draw_broadcast_progress(a, loc) if a.broadcasting?
-        draw_transmission_links(a, loc) if a.broadcasting?
-        sonify_broadcast if a.broadcasting? and a.outgoing_broadcast.progress == 0
+        #draw_transmission_links(a, loc) if a.broadcasting?
+        sonify_broadcast if a.broadcasting? and a.broadcast_progress == 0
       end
 
       failed_receivers.each do |a|
@@ -243,8 +259,8 @@ class UI < Gosu::Window
         draw_agent(a, loc)
         draw_failed_broadcast(a, loc)
         draw_broadcast_progress(a, loc) if a.broadcasting?
-        draw_transmission_links(a, loc) if a.broadcasting?
-        sonify_broadcast if a.broadcasting? and a.outgoing_broadcast.progress == 0
+        #draw_transmission_links(a, loc) if a.broadcasting?
+        sonify_broadcast if a.broadcasting? and a.broadcast_progress == 0
       end
 
       # return to screen coordinates
@@ -255,7 +271,7 @@ class UI < Gosu::Window
     end
 
     toc = Gosu::milliseconds
-    puts "draw time: #{toc-tic}ms"
+    #puts "draw time: #{toc-tic}ms"
   end
 end
 

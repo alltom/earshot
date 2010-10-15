@@ -6,8 +6,6 @@ class UIDGenerator
   end
   
   def next
-    id = "#{@prefix}-#{@next}"
-    @next += 1
-    id
+    (0...NUM_UID_BITS).map { |i| rand.round.to_s }.join('')
   end
 end

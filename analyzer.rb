@@ -63,8 +63,8 @@ class Analyzer
   end
 
   # puts is defined so EarLog can output to an Analyzer as well as a file
-  def puts(message)
-    time, type, *type_args = message.split(/\t/)
+  def puts(entry)
+    time, type, *type_args = entry.split(/\t/)
     time = Float time
 
     case type
