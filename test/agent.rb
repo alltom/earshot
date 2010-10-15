@@ -3,14 +3,15 @@ require './agent'
 
 
 # Mock classes
-UID = '123123'
+TRANSMITTER_UID = '10010101010'
+OTHER_UID = '11110101010'
 
 class UIDGenerator
   def initialize(prefix)
   end
 
   def next
-    UID
+    TRANSMITTER_UID
   end
 end
 
@@ -23,16 +24,21 @@ class Shreduler
 end
 
 class Message
+  attr_reader :target_uid
+  def initialize(target_uid)
+    @target_uid = target_uid
+  end
+
   def to_bits
     MESSAGE
   end
-
-  def self.from_bits(bits)
-    Message.new
+  
+  def self.setup_mock_from_bits(target_uid)
+    @@target_uid = target_uid
   end
 
-  def target_uid
-    '10010101010'
+  def self.from_bits(bits)
+    Message.new(@@target_uid)
   end
 
   def length
@@ -67,6 +73,18 @@ class Airspace
   end
 end
 
+class EARLOG
+  @@messages_received = 0
+
+  def self.messages_received
+    @@messages_received
+  end
+
+  def self.recv(agent, message)
+    @@messages_received += 1
+  end
+end
+
 
 # override of Transmitter class to make it more testable
 class Transmitter
@@ -88,7 +106,7 @@ class TransmitterTester < Test::Unit::TestCase
   def test_broadcast_message
     air = Airspace.new
     t = Transmitter.new(loc=nil, airspace=air)
-    m = Message.new
+    m = Message.new(TRANSMITTER_UID)
     t.broadcast_message(m)
 
     len_bits = sprintf("%0#{NUM_LENGTH_BITS}d", MESSAGE.length.to_s(2))
@@ -127,6 +145,7 @@ class TransmitterTester < Test::Unit::TestCase
 
   def test_receive_message
     t = Transmitter.new(loc=nil, airspace=nil)
+    Message::setup_mock_from_bits(TRANSMITTER_UID)
     len_bits = sprintf("%0#{NUM_LENGTH_BITS}d", MESSAGE.length.to_s(2))
 
     assert_equal :idle, t.state
@@ -135,5 +154,23 @@ class TransmitterTester < Test::Unit::TestCase
     checksum(MESSAGE).each_char { |bit| t.recv_bit(bit) }
     MESSAGE.each_char { |bit| t.recv_bit(bit) }
     assert_equal :idle, t.state
+  end
+
+  def test_store_message_by_target
+    t = Transmitter.new(loc=nil, airspace=nil)
+    Message::setup_mock_from_bits(TRANSMITTER_UID)
+
+    n = EARLOG::messages_received
+    t.store_message(MESSAGE)
+    assert_equal n+1, EARLOG::messages_received
+  end
+
+  def test_store_message_by_relayer
+    t = Transmitter.new(loc=nil, airspace=nil)
+    Message::setup_mock_from_bits(OTHER_UID)
+
+    n = EARLOG::messages_received
+    t.store_message(MESSAGE)
+    assert_equal n, EARLOG::messages_received
   end
 end
