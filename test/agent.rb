@@ -14,12 +14,19 @@ class UIDGenerator
   end
 end
 
+NOW = 8736
+class Shreduler
+  def now() NOW end
+end
+
 
 class TransmitterTester < Test::Unit::TestCase
+  def setup
+    $shreduler = Shreduler.new
+  end
+
   def test_init
-    loc = nil
-    airspace = nil
-    t = Transmitter.new(loc, airspace)
+    t = Transmitter.new(loc=nil, airspace=nil)
 
     assert_equal :idle, t.state
   end
@@ -29,7 +36,11 @@ class TransmitterTester < Test::Unit::TestCase
   end
 
   def test_receive_start_flag
-    assert false
+    t = Transmitter.new(loc=nil, airspace=nil)
+
+    assert_equal :idle, t.state
+    START.each_char { |bit| t.recv_bit(bit) }
+    assert_equal :reading_length, t.state
   end
 
   def test_receive_length
