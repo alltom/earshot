@@ -1,8 +1,5 @@
 class Airspace
-  attr_reader :broadcasts
-
   def initialize
-    @broadcasts = []
     @receivers = []
     @collision_agents = []
   end
