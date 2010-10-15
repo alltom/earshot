@@ -63,4 +63,20 @@ class Tester < Test::Unit::TestCase
     @earlog.recv(@agent, @message)
     assert_equal "#{NOW}\trecv\t#{AGENT_UID}\t#{MESSAGE_UID}", @log.contents
   end
+
+  def test_move
+    new_x, new_y, speed = 1, 2, 3
+    @earlog.move(@agent, new_x, new_y, speed)
+    assert_equal "#{NOW}\tmove\t#{AGENT_UID}\t#{LOC_X}\t#{LOC_Y}\t#{new_x}\t#{new_y}\t#{speed}", @log.contents
+  end
+
+  def test_bump
+    @earlog.bump
+    assert_equal "#{NOW}\tbump", @log.contents
+  end
+
+  def test_relay
+    @earlog.relay(@agent, @message)
+    assert_equal "#{NOW}\trelay\t#{AGENT_UID}\t#{MESSAGE_UID}", @log.contents
+  end
 end
