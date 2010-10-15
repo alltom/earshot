@@ -44,6 +44,7 @@ class Tester < Test::Unit::TestCase
     @log = Logfile.new
     @earlog = EarLog.new(@log)
     @agent = Agent.new
+    @message = Message.new
     $shreduler = Shreduler.new
   end
 
@@ -52,4 +53,9 @@ class Tester < Test::Unit::TestCase
     assert_equal "#{NOW}\tborn\t#{AGENT_UID}\t#{LOC_X}\t#{LOC_Y}", @log.contents
   end
 
+  def test_xmit
+    dest_uid = '408971692'
+    @earlog.xmit(@agent, dest_uid, @message)
+    assert_equal "#{NOW}\txmit\t#{AGENT_UID}\t#{dest_uid}\t#{MESSAGE_UID}\t#{MESSAGE_LENGTH}", @log.contents
+  end
 end
