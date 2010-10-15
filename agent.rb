@@ -88,6 +88,7 @@ class Transmitter
     when :idle
       if bit != START[@i]
         # There's been a deviation from the protocol, so start over
+        puts 'argh'
         idle
       else
         @i += 1
@@ -135,7 +136,7 @@ class Transmitter
 
     # marshall message into a bit string:
     mbits = message.to_bits
-    @bits = START + sprintf("%0#{NUM_LENGTH_BITS}d", message.length.to_s(2)) + checksum(mbits) + mbits
+    @bits = START + sprintf("%0#{NUM_LENGTH_BITS}d", mbits.length.to_s(2)) + checksum(mbits) + mbits
     @i = 0
 
     @xmit_shred = Ruck::Shred.new do 

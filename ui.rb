@@ -38,9 +38,9 @@ class UI < Gosu::Window
     @agent_color = Gosu::Color.new(160, 240, 234)
 
     @state_idle_color = Gosu::Color.new(20, 158, 240, 216)
-    @state_length_color = Gosu::Color.new(100, 255, 0, 0)
-    @state_checksum_color = Gosu::Color.new(100, 0, 255, 0)
-    @state_message_color = Gosu::Color.new(100, 0, 0, 255)
+    @state_length_color = Gosu::Color.new(40, 255, 249, 119)
+    @state_checksum_color = Gosu::Color.new(40, 255, 194, 88)
+    @state_message_color = Gosu::Color.new(40, 232, 152, 92)
     @state_sending_color = Gosu::Color.new(20, 158, 240, 216)
   end
 

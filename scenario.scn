@@ -14,4 +14,6 @@ messages ["HELLO",
           "SIR OR MADAM, DO YOU HAVE ANY GREY POUPON? I SEEM TO BE FRESH OUT!"]
 
 speed 80.0/60  # in m/s (http://en.wikipedia.org/wiki/Walking#Walking_speed)
-(1..10).each { agent rand*w, rand*h }
+x, y = rand*w, rand*h
+agent x, y
+agent x, y
