@@ -109,7 +109,7 @@ class Transmitter
     when :reading_message
       @bits[@i] = bit
       @i += 1
-      if @i == NUM_UID_BITS*3 + @length
+      if @i == @length
         if @checksum == checksum(@bits)
           store_message(@bits)
         else
@@ -138,7 +138,8 @@ class Transmitter
     @state = :sending
 
     # marshall message into a bit string:
-    @bits = message.to_bits
+    mbits = message.to_bits
+    @bits = start + message.length + checksum(mbits) + mbits
     @i = 0
 
     @xmit_shred = Ruck::Shred.new do 
