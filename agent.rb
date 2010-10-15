@@ -139,14 +139,17 @@ class Transmitter
 
     # marshall message into a bit string:
     mbits = message.to_bits
-    @bits = start + message.length + checksum(mbits) + mbits
+    @bits = START + sprintf("%0#{NUM_LENGTH_BITS}d", message.length.to_s(2)) + checksum(mbits) + mbits
     @i = 0
 
     @xmit_shred = Ruck::Shred.new do 
       loop do
         send_bit(@bits[@i])
         @i += 1
-        transmission_finished if @i == @bits.length
+        if @i == @bits.length
+          transmission_finished
+          break
+        end
         Ruck::Shred.yield(CONFIG[:seconds_per_bit])
       end
     end
@@ -154,7 +157,7 @@ class Transmitter
   end
 
   def transmission_finished
-    @xmit_shred.kill
+    @xmit_shred.kill unless @xmit_shred.nil?
     idle
   end
   
