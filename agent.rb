@@ -82,14 +82,17 @@ class Transmitter
       return
     end
 
+    idle if recv_timeout?
+
     case @state
     when :idle
-      # If there's been a deviation from the protocol, start over
       if bit != START[@i]
+        # There's been a deviation from the protocol, so start over
         idle
+      else
+        @i += 1
+        read_length if @i == NUM_START_BITS
       end
-      @i += 1
-      read_length if @i == NUM_START_BITS
     when :reading_length
       @bits[@i] = bit
       @i += 1
@@ -167,6 +170,10 @@ class Transmitter
   def air_clear?
     ($shreduler.now - @last_receive_time) > CONFIG[:seconds_per_bit]*SAFETY_FACTOR
   end
+
+  def recv_timeout?
+    ($shreduler.now - @last_receive_time) > CONFIG[:seconds_per_bit]*SAFETY_FACTOR
+  end
 end
 
 
@@ -200,7 +207,7 @@ class Agent < Transmitter
     # every so less often, broadcast a novel message
     spork_loop do
       Ruck::Shred.yield(rand * 50)
-      if !broadcasting? and !@friend_uids.empty?
+      if !broadcasting? and !@friend_uids.empty? && air_clear?
         target_uid = @friend_uids[rand @friend_uids.length]
         body = CONFIG[:messages][rand CONFIG[:messages].length]
         msg = Message.new(@uid, target_uid, body)
