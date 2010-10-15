@@ -205,9 +205,8 @@ class Agent < Transmitter
       Ruck::Shred.yield(rand * 50)
       if !broadcasting? and !@friend_uids.empty?
         target_uid = @friend_uids[rand @friend_uids.length]
-        body_string = CONFIG[:messages][rand CONFIG[:messages].length]
-        body_binary = body_string.each_byte.map { |b| sprintf('%08d', b.to_s(2)) }.join('') 
-        msg = Message.new(@uid, target_uid, body_binary)
+        body = CONFIG[:messages][rand CONFIG[:messages].length]
+        msg = Message.new(@uid, target_uid, body)
         @stored_messages << msg
         EARLOG::xmit(self, target_uid, msg)
         broadcast_message(msg)
