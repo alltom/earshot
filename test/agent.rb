@@ -56,7 +56,14 @@ class TransmitterTester < Test::Unit::TestCase
   end
 
   def test_receive_checksum
-    assert false
+    t = Transmitter.new(loc=nil, airspace=nil)
+    len_bits = sprintf("%0#{NUM_LENGTH_BITS}d", MESSAGE.length.to_s(2))
+
+    assert_equal :idle, t.state
+    START.each_char { |bit| t.recv_bit(bit) }
+    len_bits.each_char { |bit| t.recv_bit(bit) }
+    checksum(MESSAGE).each_char { |bit| t.recv_bit(bit) }
+    assert_equal :reading_message, t.state
   end
 
   def test_receive_message
