@@ -60,4 +60,17 @@ class Tester < Test::Unit::TestCase
     assert_equal BIT, a2.bit
   end
 
+  def test_send_bit_out_of_range
+    air = Airspace.new
+    a1 = Agent.new(Loc.new(NEAR_X, NEAR_Y))
+    a2 = Agent.new(Loc.new(FAR_X, FAR_Y))
+    air << a1
+    air << a2
+
+    air.send_bit(a1, RADIUS, BIT)
+
+    assert a1.bit.nil?
+    assert a2.bit.nil?
+  end
+
 end
