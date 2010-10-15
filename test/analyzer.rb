@@ -49,6 +49,9 @@ class Tester < Test::Unit::TestCase
   end
 
   def test_relay
-    assert false
+    a = Analyzer.new
+    n = a.relays
+    a.puts("#{NOW}\trelay\t#{AGENT_UID}\t#{MESSAGE_UID}")
+    assert_equal n+1, a.relays
   end
 end
