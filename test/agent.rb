@@ -32,6 +32,12 @@ end
 MESSAGE = "101111101010100010101"
 
 
+# override of Transmitter class to make it more testable
+class Transmitter
+  attr_accessor :length
+end
+
+
 class TransmitterTester < Test::Unit::TestCase
   def setup
     $shreduler = Shreduler.new

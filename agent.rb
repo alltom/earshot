@@ -21,7 +21,6 @@ class Transmitter
   attr_accessor :outgoing_broadcast
   attr_reader   :state
   attr_reader   :uid
-  attr_reader   :length # this is for testing. there's probably a better way to expose it
   
   def self.uid
     (@uuid_generator ||= UIDGenerator.new("AGENT")).next
