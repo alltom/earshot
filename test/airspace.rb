@@ -4,6 +4,9 @@ require './airspace'
 
 # Mock classes
 RADIUS = 50
+NEAR_X, NEAR_Y = 0, 0
+FAR_X, FAR_Y = 100, 100
+BIT = '1'
 
 class Loc
   attr_reader :x, :y
@@ -31,13 +34,10 @@ end
 
 class Tester < Test::Unit::TestCase
   def test_send_bit_isolated
-    x, y = 1, 2
-    bit = '1'
-
     air = Airspace.new
-    agent = Agent.new(Loc.new(x, y))
+    agent = Agent.new(Loc.new(NEAR_X, NEAR_Y))
     air << agent
-    air.send_bit(agent, RADIUS, bit)
+    air.send_bit(agent, RADIUS, BIT)
 
     assert agent.bit.nil?
   end
