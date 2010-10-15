@@ -38,11 +38,14 @@ class Tester < Test::Unit::TestCase
   end
 
   def test_move
-    assert false
+    # nothing to test here
   end
 
   def test_bump
-    assert false
+    a = Analyzer.new
+    n = a.collisions
+    a.puts("#{NOW}\tbump")
+    assert_equal n+1, a.collisions
   end
 
   def test_relay
