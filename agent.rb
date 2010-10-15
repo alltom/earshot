@@ -18,7 +18,6 @@ end
 class Transmitter
   attr_accessor :airspace
   attr_reader   :loc
-  attr_accessor :outgoing_broadcast
   attr_reader   :state
   attr_reader   :uid
   
@@ -32,7 +31,6 @@ class Transmitter
     @uid = Agent.uid
     @last_receive_time = -1.0/0.0
     @stored_messages = []
-    @outgoing_broadcast = nil
 
     @xmit_shred = nil
 
@@ -130,11 +128,6 @@ class Transmitter
   end
 
   def broadcast_message(message)
-    unless @outgoing_broadcast.nil?
-      LOG.error "#{self} cannot broadcast more than one message at once!"
-      return
-    end
-
     @state = :sending
 
     # marshall message into a bit string:
