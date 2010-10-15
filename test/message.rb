@@ -22,4 +22,14 @@ class Tester < Test::Unit::TestCase
   def test_init
     m = Message.new(SENDER_UID, TARGET_UID, TEXT)
   end
+
+  def test_length
+    m = Message.new(SENDER_UID, TARGET_UID, TEXT)
+    assert_equal TEXT.length, m.length
+  end
+
+  def test_equals
+    m = Message.new(SENDER_UID, TARGET_UID, TEXT)
+    assert m == m
+  end
 end

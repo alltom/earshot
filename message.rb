@@ -43,4 +43,11 @@ class Message
 
     Message.new(sender_uid, target_uid, body, message_uid)
   end
+
+  def ==(other)
+    @uid == other.uid and 
+    @sender_uid == other.sender_uid and 
+    @target_uid == other.target_uid and 
+    @text == other.text
+  end
 end
