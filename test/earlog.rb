@@ -58,4 +58,9 @@ class Tester < Test::Unit::TestCase
     @earlog.xmit(@agent, dest_uid, @message)
     assert_equal "#{NOW}\txmit\t#{AGENT_UID}\t#{dest_uid}\t#{MESSAGE_UID}\t#{MESSAGE_LENGTH}", @log.contents
   end
+
+  def test_recv
+    @earlog.recv(@agent, @message)
+    assert_equal "#{NOW}\trecv\t#{AGENT_UID}\t#{MESSAGE_UID}", @log.contents
+  end
 end
