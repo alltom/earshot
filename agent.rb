@@ -69,8 +69,7 @@ class Transmitter
     if message.target_uid == self.uid
       EARLOG::recv(self, message) unless @stored_messages.member? message
     else
-      puts 'got a message for someone else'
-      puts "me: #{@uid}\ntarget: #{message.target_uid}"
+      LOG.info "#{self} received a message for someone else"
     end
   end
 
@@ -87,8 +86,7 @@ class Transmitter
     case @state
     when :idle
       if bit != START[@i]
-        # There's been a deviation from the protocol, so start over
-        puts 'argh'
+        LOG.info "#{self} received an unexpected bit; idling..."
         idle
       else
         @i += 1
