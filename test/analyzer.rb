@@ -20,7 +20,12 @@ class Tester < Test::Unit::TestCase
   end
 
   def test_xmit
-    assert false
+    a = Analyzer.new
+    n = a.messages_sent
+    dest_uid = '408971692'
+    a.puts("#{NOW}\tborn\t#{AGENT_UID}\t#{LOC_X}\t#{LOC_Y}")
+    a.puts("#{NOW}\txmit\t#{AGENT_UID}\t#{dest_uid}\t#{MESSAGE_UID}\t#{MESSAGE_LENGTH}")
+    assert_equal n+1, a.messages_sent
   end
 
   def test_recv
