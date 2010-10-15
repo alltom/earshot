@@ -45,6 +45,7 @@ CONFIG = {}
 CONFIG[:width_m] = 100
 CONFIG[:height_m] = 100
 
+
 class Tester < Test::Unit::TestCase
   def test_add_agent
     sim = Simulation.new
@@ -52,9 +53,5 @@ class Tester < Test::Unit::TestCase
     assert_equal true, sim.agents.empty?
     sim.add_agent
     assert_equal false, sim.agents.empty?
-  end
-
-  def test_advance
-    assert false
   end
 end
