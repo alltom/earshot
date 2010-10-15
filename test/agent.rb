@@ -19,7 +19,17 @@ class Shreduler
   def now() NOW end
 end
 
-MESSAGE = "these aren't the droids you're looking for."
+class Message
+  def self.from_bits(bits)
+    Message.new
+  end
+
+  def target_uid
+    '10010101010'
+  end
+end
+
+MESSAGE = "101111101010100010101"
 
 
 class TransmitterTester < Test::Unit::TestCase
@@ -50,9 +60,10 @@ class TransmitterTester < Test::Unit::TestCase
     len_bits = sprintf("%0#{NUM_LENGTH_BITS}d", MESSAGE.length.to_s(2))
 
     assert_equal :idle, t.state
-    START.each_char { |bit| t.recv_bit(bit) }
+    t.read_length
     len_bits.each_char { |bit| t.recv_bit(bit) }
     assert_equal :reading_checksum, t.state
+    assert_equal MESSAGE.length, t.length
   end
 
   def test_receive_checksum
@@ -67,6 +78,14 @@ class TransmitterTester < Test::Unit::TestCase
   end
 
   def test_receive_message
-    assert false
+    t = Transmitter.new(loc=nil, airspace=nil)
+    len_bits = sprintf("%0#{NUM_LENGTH_BITS}d", MESSAGE.length.to_s(2))
+
+    assert_equal :idle, t.state
+    START.each_char { |bit| t.recv_bit(bit) }
+    len_bits.each_char { |bit| t.recv_bit(bit) }
+    checksum(MESSAGE).each_char { |bit| t.recv_bit(bit) }
+    MESSAGE.each_char { |bit| t.recv_bit(bit) }
+    assert_equal :idle, t.state
   end
 end
