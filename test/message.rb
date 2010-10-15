@@ -45,7 +45,7 @@ class Tester < Test::Unit::TestCase
     assert m == m
   end
 
-  def test_to_bits
+  def test_to_bits_and_from_bits
     sender_uid = '1'*128
     target_uid = '0'*128
     message_uid = '10'*(128/2)
