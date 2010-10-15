@@ -28,7 +28,7 @@ class Simulation
   end
 
   def advance
-    $shreduler.run_until(Time.now - @start_time)
+    @shreduler.run_until(Time.now - @start_time)
   end
   
   def start
