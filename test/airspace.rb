@@ -21,8 +21,9 @@ end
 
 class Agent
   attr_reader :loc, :bit
-  def initialize(loc)
+  def initialize(loc, broadcasting=false)
     @loc = loc
+    @broadcasting = broadcasting
     @bit = nil
   end
 
@@ -31,7 +32,18 @@ class Agent
   end
 
   def broadcasting?
-    false
+    @broadcasting
+  end
+end
+
+class EARLOG
+  @@collision = false
+  def EARLOG.bump
+    @@collision = true
+  end
+
+  def EARLOG.collision?
+    @@collision
   end
 end
 
@@ -58,6 +70,18 @@ class Tester < Test::Unit::TestCase
 
     assert a1.bit.nil?
     assert_equal BIT, a2.bit
+  end
+
+  def test_send_bit_simultaneously_in_range
+    air = Airspace.new
+    a1 = Agent.new(Loc.new(NEAR_X, NEAR_Y))
+    a2 = Agent.new(Loc.new(NEAR_X, NEAR_Y), broadcasting=true)
+    air << a1
+    air << a2
+
+    assert_equal false, EARLOG::collision?
+    air.send_bit(a1, RADIUS, BIT)
+    assert_equal true, EARLOG::collision?
   end
 
   def test_send_bit_out_of_range
