@@ -29,6 +29,10 @@ class Agent
   def recv_bit(bit)
     @bit = bit
   end
+
+  def broadcasting?
+    false
+  end
 end
 
 
@@ -37,8 +41,23 @@ class Tester < Test::Unit::TestCase
     air = Airspace.new
     agent = Agent.new(Loc.new(NEAR_X, NEAR_Y))
     air << agent
+
     air.send_bit(agent, RADIUS, BIT)
 
     assert agent.bit.nil?
   end
+
+  def test_send_bit_in_range
+    air = Airspace.new
+    a1 = Agent.new(Loc.new(NEAR_X, NEAR_Y))
+    a2 = Agent.new(Loc.new(NEAR_X, NEAR_Y))
+    air << a1
+    air << a2
+
+    air.send_bit(a1, RADIUS, BIT)
+
+    assert a1.bit.nil?
+    assert_equal BIT, a2.bit
+  end
+
 end
