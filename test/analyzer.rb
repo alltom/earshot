@@ -7,6 +7,7 @@ AGENT_UID = '1234'
 MESSAGE_UID = '9076'
 MESSAGE_LENGTH = 27
 NOW = 8736
+DEST_UID = '408971692'
 
 class Loc
 end
@@ -22,14 +23,18 @@ class Tester < Test::Unit::TestCase
   def test_xmit
     a = Analyzer.new
     n = a.messages_sent
-    dest_uid = '408971692'
     a.puts("#{NOW}\tborn\t#{AGENT_UID}\t#{LOC_X}\t#{LOC_Y}")
-    a.puts("#{NOW}\txmit\t#{AGENT_UID}\t#{dest_uid}\t#{MESSAGE_UID}\t#{MESSAGE_LENGTH}")
+    a.puts("#{NOW}\txmit\t#{AGENT_UID}\t#{DEST_UID}\t#{MESSAGE_UID}\t#{MESSAGE_LENGTH}")
     assert_equal n+1, a.messages_sent
   end
 
   def test_recv
-    assert false
+    a = Analyzer.new
+    n = a.messages_delivered
+    a.puts("#{NOW}\tborn\t#{AGENT_UID}\t#{LOC_X}\t#{LOC_Y}")
+    a.puts("#{NOW}\txmit\t#{AGENT_UID}\t#{DEST_UID}\t#{MESSAGE_UID}\t#{MESSAGE_LENGTH}")
+    a.puts("#{NOW}\trecv\t#{AGENT_UID}\t#{MESSAGE_UID}")
+    assert_equal n+1, a.messages_delivered
   end
 
   def test_move
