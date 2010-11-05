@@ -106,8 +106,8 @@ class UI < Gosu::Window
   end
 
   def draw_analyzer_stats
-    @label_font ||= Gosu::Font.new(self, "./fonts/unispace bd.ttf", 18)  # from http://www.dafont.com/theme.php?cat=503
-    @value_font ||= Gosu::Font.new(self, "./fonts/unispace bd.ttf", 16)  # from http://www.dafont.com/theme.php?cat=503
+    @label_font ||= Gosu::Font.new(self, lib_path(File.join "fonts", "unispace bd.ttf"), 18)  # from http://www.dafont.com/theme.php?cat=503
+    @value_font ||= Gosu::Font.new(self, lib_path(File.join "fonts", "unispace bd.ttf"), 16)  # from http://www.dafont.com/theme.php?cat=503
 
     x, y = 20, 120
     @label_font.draw("Tx", x, y, 0, 1, 1, @fg_color)
@@ -137,7 +137,7 @@ class UI < Gosu::Window
   end
 
   def draw_grid_dimensions
-    @grid_dim_font ||= Gosu::Font.new(self, "./fonts/unispace bd.ttf", 10)  # from http://www.dafont.com/theme.php?cat=503
+    @grid_dim_font ||= Gosu::Font.new(self, lib_path(File.join "fonts", "unispace bd.ttf"), 10)  # from http://www.dafont.com/theme.php?cat=503
     font_height = 10
     lm = CONFIG[:left_margin_px]
     tm = CONFIG[:top_margin_px]
