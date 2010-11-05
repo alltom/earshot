@@ -1,5 +1,6 @@
-require 'test/unit'
-require './loc'
+
+require "helper"
+require File.join(File.dirname(__FILE__), "..", "lib", "loc")
 
 class Tester < Test::Unit::TestCase
   def test_dist

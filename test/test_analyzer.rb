@@ -1,5 +1,6 @@
-require 'test/unit'
-require './analyzer'
+
+require "helper"
+require File.join(File.dirname(__FILE__), "..", "lib", "analyzer")
 
 LOC_X, LOC_Y = 15, 27
 AGENT_UID = '1234'

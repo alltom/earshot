@@ -1,5 +1,6 @@
-require 'test/unit'
-require './airspace'
+
+require "helper"
+require File.join(File.dirname(__FILE__), "..", "lib", "airspace")
 
 
 # Mock classes

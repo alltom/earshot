@@ -1,5 +1,6 @@
-require 'test/unit'
-require './message'
+
+require "helper"
+require File.join(File.dirname(__FILE__), "..", "lib", "message")
 
 
 # Mock classes

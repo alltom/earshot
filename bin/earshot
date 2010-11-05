@@ -1,12 +1,6 @@
-require File.join(File.dirname(__FILE__), "loc")
-require File.join(File.dirname(__FILE__), "airspace")
-require File.join(File.dirname(__FILE__), "agent")
-require File.join(File.dirname(__FILE__), "simulation")
-require File.join(File.dirname(__FILE__), "uid")
-require File.join(File.dirname(__FILE__), "message")
-require File.join(File.dirname(__FILE__), "loader")
-require File.join(File.dirname(__FILE__), "earlog")
-require File.join(File.dirname(__FILE__), "analyzer")
+#!/usr/bin/ruby
+
+require File.join(File.dirname(__FILE__), "..", "lib", "earshot")
 
 require "rubygems"
 require "ruck"
@@ -39,7 +33,7 @@ LOG.level = Logger::ERROR # DEBUG, INFO, WARN, ERROR, FATAL
 ANALYZER = Analyzer.new
 EARLOG = EarLog.new(ANALYZER)
 
-@simulation = Loader::load('scenario.scn')
+@simulation = Loader::load(File.join(File.dirname(__FILE__), "..", "scenarios", "scenario.scn"))
 
 if CONFIG[:headless]
   @simulation.start
@@ -48,7 +42,7 @@ else
   require "gosu"
   require "gl"
   require "glu"
-  require File.join(File.dirname(__FILE__), "ui")
+  require File.join(File.dirname(__FILE__), "..", "lib", "ui")
   
   # construct the GUI
   ui = UI.new

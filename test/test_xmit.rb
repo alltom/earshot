@@ -1,11 +1,15 @@
-require './uid'
-require './loc'
-require './agent'
-require './message'
-require './airspace'
-require 'ruck'
-require './analyzer'
-require './earlog'
+
+require "helper"
+
+require "ruck"
+
+require File.join(File.dirname(__FILE__), "..", "lib", "uid")
+require File.join(File.dirname(__FILE__), "..", "lib", "loc")
+require File.join(File.dirname(__FILE__), "..", "lib", "agent")
+require File.join(File.dirname(__FILE__), "..", "lib", "message")
+require File.join(File.dirname(__FILE__), "..", "lib", "airspace")
+require File.join(File.dirname(__FILE__), "..", "lib", "analyzer")
+require File.join(File.dirname(__FILE__), "..", "lib", "earlog")
 
 CONFIG = {}
 CONFIG[:transmission_radius_m] = 50

@@ -1,5 +1,6 @@
-require 'test/unit'
-require './earlog'
+
+require "helper"
+require File.join(File.dirname(__FILE__), "..", "lib", "earlog")
 
 
 # Mock classes

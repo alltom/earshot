@@ -1,6 +1,6 @@
-require 'test/unit'
-require './simulation'
 
+require "helper"
+require File.join(File.dirname(__FILE__), "..", "lib", "simulation")
 
 # Mock classes
 

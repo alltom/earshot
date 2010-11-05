@@ -1,6 +1,10 @@
 include Gl
 include Glu
 
+def lib_path(filename)
+  File.join(File.dirname(__FILE__), filename)
+end
+
 module Gosu
   class Color
     def to_gl
@@ -24,7 +28,7 @@ class UI < Gosu::Window
     
     @circle = GCircle.new(40)
     @arc = GArc.new(40)
-    @droplet = Gosu::Sample.new(self, 'droplet.wav')
+    @droplet = Gosu::Sample.new(self, lib_path("droplet.wav"))
 
     @draw_time = 0.0
 
@@ -91,12 +95,12 @@ class UI < Gosu::Window
   end
 
   def draw_logo
-    @icon ||= Gosu::Image.new(self, 'icon.png', false)
+    @icon ||= Gosu::Image.new(self, lib_path("icon.png"), false)
     @icon.draw(-20, -3, 1)
   end
 
   def draw_clock
-    @clock_font ||= Gosu::Font.new(self, "./fonts/unispace bd.ttf", 20)  # from http://www.dafont.com/theme.php?cat=503
+    @clock_font ||= Gosu::Font.new(self, lib_path(File.join "fonts", "unispace bd.ttf"), 20)  # from http://www.dafont.com/theme.php?cat=503
     m, s = $shreduler.now.round.divmod(60)
     @clock_font.draw(sprintf("%02dm%02ds", m, s), 20, 80, 0, 1, 1, @text_color)
   end

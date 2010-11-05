@@ -1,5 +1,6 @@
-require 'test/unit'
-require './agent'
+
+require "helper"
+require "agent"
 
 
 # Mock classes
