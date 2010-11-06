@@ -1,8 +1,8 @@
 include Gl
 include Glu
 
-def lib_path(filename)
-  File.join(File.dirname(__FILE__), filename)
+def resource_path(*filename_components)
+  File.join(File.dirname(__FILE__), "..", "resources", *filename_components)
 end
 
 module Gosu
@@ -28,7 +28,7 @@ class UI < Gosu::Window
     
     @circle = GCircle.new(40)
     @arc = GArc.new(40)
-    @droplet = Gosu::Sample.new(self, lib_path("droplet.wav"))
+    @droplet = Gosu::Sample.new(self, resource_path("droplet.wav"))
 
     @draw_time = 0.0
 
@@ -95,19 +95,19 @@ class UI < Gosu::Window
   end
 
   def draw_logo
-    @icon ||= Gosu::Image.new(self, lib_path("icon.png"), false)
+    @icon ||= Gosu::Image.new(self, resource_path("icon.png"), false)
     @icon.draw(-20, -3, 1)
   end
 
   def draw_clock
-    @clock_font ||= Gosu::Font.new(self, lib_path(File.join "fonts", "unispace bd.ttf"), 20)  # from http://www.dafont.com/theme.php?cat=503
+    @clock_font ||= Gosu::Font.new(self, resource_path("fonts", "unispace bd.ttf"), 20)  # from http://www.dafont.com/theme.php?cat=503
     m, s = $shreduler.now.round.divmod(60)
     @clock_font.draw(sprintf("%02dm%02ds", m, s), 20, 80, 0, 1, 1, @text_color)
   end
 
   def draw_analyzer_stats
-    @label_font ||= Gosu::Font.new(self, lib_path(File.join "fonts", "unispace bd.ttf"), 18)  # from http://www.dafont.com/theme.php?cat=503
-    @value_font ||= Gosu::Font.new(self, lib_path(File.join "fonts", "unispace bd.ttf"), 16)  # from http://www.dafont.com/theme.php?cat=503
+    @label_font ||= Gosu::Font.new(self, resource_path("fonts", "unispace bd.ttf"), 18)  # from http://www.dafont.com/theme.php?cat=503
+    @value_font ||= Gosu::Font.new(self, resource_path("fonts", "unispace bd.ttf"), 16)  # from http://www.dafont.com/theme.php?cat=503
 
     x, y = 20, 120
     @label_font.draw("Tx", x, y, 0, 1, 1, @fg_color)
@@ -137,7 +137,7 @@ class UI < Gosu::Window
   end
 
   def draw_grid_dimensions
-    @grid_dim_font ||= Gosu::Font.new(self, lib_path(File.join "fonts", "unispace bd.ttf"), 10)  # from http://www.dafont.com/theme.php?cat=503
+    @grid_dim_font ||= Gosu::Font.new(self, resource_path("fonts", "unispace bd.ttf"), 10)  # from http://www.dafont.com/theme.php?cat=503
     font_height = 10
     lm = CONFIG[:left_margin_px]
     tm = CONFIG[:top_margin_px]
