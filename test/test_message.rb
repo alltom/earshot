@@ -1,48 +1,40 @@
 
 require "helper"
-require File.join(File.dirname(__FILE__), "..", "lib", "message")
 
+# UID = '123123'
+# TEXT = 'hi there'
 
-# Mock classes
-UID = '123123'
-TEXT = 'hi there'
-
-class UIDGenerator
-  def initialize(prefix)
+class TestMessage < Test::Unit::TestCase
+  def setup
+    @text = "hi there"
   end
-
-  def next
-    UID
-  end
-end
-
-
-class Tester < Test::Unit::TestCase
+  
   def test_init
     assert_nothing_thrown do
       sender_uid = '1'*128
       target_uid = '0'*128
-      m = Message.new(sender_uid, target_uid, TEXT)
+      
+      m = Message.new(sender_uid, target_uid, @text)
     end
 
     assert_raise Message::InvalidUidException do
       sender_uid = '1'
       target_uid = '0'*128
-      m = Message.new(sender_uid, target_uid, TEXT)
+      m = Message.new(sender_uid, target_uid, @text)
     end
   end
 
   def test_length
     sender_uid = '1'*128
     target_uid = '0'*128
-    m = Message.new(sender_uid, target_uid, TEXT)
-    assert_equal string2binary(TEXT).length, m.length
+    m = Message.new(sender_uid, target_uid, @text)
+    assert_equal string2binary(@text).length, m.length
   end
 
   def test_equals
     sender_uid = '1'*128
     target_uid = '0'*128
-    m = Message.new(sender_uid, target_uid, TEXT)
+    m = Message.new(sender_uid, target_uid, @text)
     assert m == m
   end
 
@@ -50,7 +42,7 @@ class Tester < Test::Unit::TestCase
     sender_uid = '1'*128
     target_uid = '0'*128
     message_uid = '10'*(128/2)
-    m = Message.new(sender_uid, target_uid, TEXT, message_uid)
+    m = Message.new(sender_uid, target_uid, @text, message_uid)
     m2 = Message.from_bits(m.to_bits)
 
     assert m == m2

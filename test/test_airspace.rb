@@ -1,55 +1,12 @@
 
 require "helper"
-require File.join(File.dirname(__FILE__), "..", "lib", "airspace")
 
+# RADIUS = 50
+# NEAR_X, NEAR_Y = 0, 0
+# FAR_X, FAR_Y = 100, 100
+# BIT = '1'
 
-# Mock classes
-RADIUS = 50
-NEAR_X, NEAR_Y = 0, 0
-FAR_X, FAR_Y = 100, 100
-BIT = '1'
-
-class Loc
-  attr_reader :x, :y
-  def initialize(x, y)
-    @x, @y = x, y
-  end
-
-  def dist(loc)
-    Math.sqrt((@x - loc.x) ** 2 + (@y - loc.y) ** 2)
-  end
-end
-
-class Agent
-  attr_reader :loc, :bit
-  def initialize(loc, broadcasting=false)
-    @loc = loc
-    @broadcasting = broadcasting
-    @bit = nil
-  end
-
-  def recv_bit(bit)
-    @bit = bit
-  end
-
-  def broadcasting?
-    @broadcasting
-  end
-end
-
-class EARLOG
-  @@collision = false
-  def EARLOG.bump
-    @@collision = true
-  end
-
-  def EARLOG.collision?
-    @@collision
-  end
-end
-
-
-class Tester < Test::Unit::TestCase
+class TestAirspace < Test::Unit::TestCase
   def test_send_bit_isolated
     air = Airspace.new
     agent = Agent.new(Loc.new(NEAR_X, NEAR_Y))

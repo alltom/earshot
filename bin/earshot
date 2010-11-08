@@ -1,13 +1,9 @@
 #!/usr/bin/ruby
 
-require File.join(File.dirname(__FILE__), "..", "lib", "earshot")
-
 require "rubygems"
-require "ruck"
-require "logger"
+require File.join(File.dirname(__FILE__), "..", "lib", "earshot")
 require "optparse"
 
-CONFIG = {}
 
 # parse command-line options and GO!
 
@@ -30,8 +26,6 @@ CONFIG[:bottom_margin_px] = 20
 
 LOG = Logger.new(STDOUT)
 LOG.level = Logger::ERROR # DEBUG, INFO, WARN, ERROR, FATAL
-ANALYZER = Analyzer.new
-EARLOG = EarLog.new(ANALYZER)
 
 @simulation = Loader::load(File.join(File.dirname(__FILE__), "..", "scenarios", "scenario.scn"))
 

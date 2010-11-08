@@ -1,8 +1,7 @@
 
 require "helper"
-require File.join(File.dirname(__FILE__), "..", "lib", "loc")
 
-class Tester < Test::Unit::TestCase
+class TestLoc < Test::Unit::TestCase
   def test_dist
     l1 = Loc.new(0, 0)
     l2 = Loc.new(0, 1)

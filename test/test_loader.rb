@@ -1,25 +1,7 @@
 
 require "helper"
-require File.join(File.dirname(__FILE__), "..", "lib", "loader")
 
-
-# Mock classes
-
-class Simulation
-  def add_agent(loc)
-    :SECRET_AGENT_MAN
-  end
-end
-
-class Loc
-  def initialize(x, y)
-  end
-end
-
-CONFIG = {}
-
-
-class Tester < Test::Unit::TestCase
+class TestLoader < Test::Unit::TestCase
   def test_init
     assert_nothing_thrown do
       Loader.new
@@ -72,7 +54,8 @@ class Tester < Test::Unit::TestCase
     x, y = 198, 277
     agent = l.agent(x, y)
     
-    assert_equal :SECRET_AGENT_MAN, agent
+    assert_equal x, agent.loc.x
+    assert_equal y, agent.loc.y
   end
 
   def test_speed

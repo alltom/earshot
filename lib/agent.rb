@@ -1,3 +1,4 @@
+
 # Protocol-related constants
 START = '10101010'
 NUM_START_BITS = 8
@@ -153,6 +154,7 @@ class Transmitter
 
   def transmission_finished
     @xmit_shred.kill unless @xmit_shred.nil?
+    @bits = ""
     idle
   end
   
@@ -172,6 +174,10 @@ class Transmitter
 
   def recv_timeout?
     ($shreduler.now - @last_receive_time) > CONFIG[:seconds_per_bit]*SAFETY_FACTOR
+  end
+  
+  def bits_transmitting
+    @bits
   end
 end
 

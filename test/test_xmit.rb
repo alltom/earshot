@@ -1,43 +1,32 @@
 
 require "helper"
 
-require "ruck"
+# CONFIG = {}
+# CONFIG[:transmission_radius_m] = 50
+# CONFIG[:seconds_per_bit] = 0.001
 
-require File.join(File.dirname(__FILE__), "..", "lib", "uid")
-require File.join(File.dirname(__FILE__), "..", "lib", "loc")
-require File.join(File.dirname(__FILE__), "..", "lib", "agent")
-require File.join(File.dirname(__FILE__), "..", "lib", "message")
-require File.join(File.dirname(__FILE__), "..", "lib", "airspace")
-require File.join(File.dirname(__FILE__), "..", "lib", "analyzer")
-require File.join(File.dirname(__FILE__), "..", "lib", "earlog")
+class TestXmit < Test::Unit::TestCase
+  def test_xmit
+    airspace = Airspace.new
+    t1 = Transmitter.new(Loc.new(0,0), airspace)
+    t2 = Transmitter.new(Loc.new(0,0), airspace)
+    airspace << t1
+    airspace << t2
 
-CONFIG = {}
-CONFIG[:transmission_radius_m] = 50
-CONFIG[:seconds_per_bit] = 0.001
+    m = Message.new(t1.uid, t2.uid, '0111')
 
-shreduler = Ruck::Shreduler.new
-shreduler.make_convenient
+    bits = m.to_bits
+    bits = bits[NUM_START_BITS+NUM_LENGTH_BITS+NUM_CHECKSUM_BITS...bits.length]
+    puts m.length
+    puts bits.length
+    m2 = Message::from_bits(bits)
+    puts m.uid
+    puts m2.uid
 
-ANALYZER = Analyzer.new
-EARLOG = EarLog.new(ANALYZER)
+    t1.broadcast_message(m)
 
-
-airspace = Airspace.new
-t1 = Transmitter.new(Loc.new(0,0), airspace)
-t2 = Transmitter.new(Loc.new(0,0), airspace)
-airspace << t1
-airspace << t2
-
-m = Message.new(t1.uid, t2.uid, '0111')
-
-bits = m.to_bits
-bits = bits[NUM_START_BITS+NUM_LENGTH_BITS+NUM_CHECKSUM_BITS...bits.length]
-puts m.length
-puts bits.length
-m2 = Message::from_bits(bits)
-puts m.uid
-puts m2.uid
-
-t1.broadcast_message(m)
-
-shreduler.run
+    shreduler.run
+    
+    # ???
+  end
+end

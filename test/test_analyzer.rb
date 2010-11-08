@@ -1,20 +1,14 @@
 
 require "helper"
-require File.join(File.dirname(__FILE__), "..", "lib", "analyzer")
 
-LOC_X, LOC_Y = 15, 27
-AGENT_UID = '1234'
-MESSAGE_UID = '9076'
-MESSAGE_LENGTH = 27
-NOW = 8736
-DEST_UID = '408971692'
+# LOC_X, LOC_Y = 15, 27
+# AGENT_UID = '1234'
+# MESSAGE_UID = '9076'
+# MESSAGE_LENGTH = 27
+# NOW = 8736
+# DEST_UID = '408971692'
 
-class Loc
-  def initialize(x, y)
-  end
-end
-
-class Tester < Test::Unit::TestCase
+class TestAnalyzer < Test::Unit::TestCase
   
   def test_born
     a = Analyzer.new
