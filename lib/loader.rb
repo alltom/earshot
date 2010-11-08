@@ -1,3 +1,4 @@
+
 class Loader
   attr_reader :simulation
 
@@ -64,6 +65,3 @@ class Loader
     dsl.simulation
   end
 end
-
-
-

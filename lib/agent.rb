@@ -23,7 +23,7 @@ class Transmitter
   attr_reader   :uid
   
   def self.uid
-    (@uuid_generator ||= UIDGenerator.new("AGENT")).next
+    (@uuid_generator ||= UID::Generator.new("AGENT")).next
   end
  
   def initialize(loc, airspace)
